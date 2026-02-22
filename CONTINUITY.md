@@ -21,6 +21,8 @@ State:
 - Stage: development (local E2E). Production: not deployed; no production environment or release process yet.
 
 Done:
+- 2026-02-22: Contractors permissions parity baseline: backend lookups now returns explicit `permissions` (canCreate/canEdit/canBlock/canDelete) by role; contractors list UI consumes permissions from `/lookups` and disables Create/Edit/Block/Delete actions accordingly.
+- 2026-02-22: Contractors nested grids persistence parity: Flyway V5 (dcl_account/dcl_contact_person/dcl_contractor_user), backend child entities/repositories + create/edit sync/read/delete, DTO расширены users/accounts/contactPersons; UI payload/state переведены на typed nested rows; service/controller tests покрывают validation и persistence flow.
 - 2026-02-22: Contractor form hardening: 5-tab UI layout, tab-level validation markers, account rules baseline validation, backend duplicate UNP check (400) + ContractorService unit tests.
 - 2026-02-22: Contractors create/edit baseline: backend endpoints `create/open|save`, `{id}/edit/open|save`; UI routes `/references/contractors/new`, `/references/contractors/$ctrId/edit`; list actions Создать/Изменить.
 - 2026-02-22: Старт реализации Contractors list (ready spec): Flyway V4 `dcl_contractor`, backend list/block/delete + lookups/data endpoints, UI route `/references/contractors` (filters/grid/pager), WebMvc tests.
@@ -150,7 +152,8 @@ Done:
 - 2026-02-11: Agent-Dev TASK-0052 contractor_create Tabs validation UX: глобальные действия «Сохранить/Отмена»; validateAllTabs on Save; Badge на вкладках с ошибками; auto-switch на первую вкладку с ошибкой; sticky footer; notification.error/success. logs/dev-contractor-tabs-validation-ux-20260211-2249.md.
 
 Now:
-- Вкладки и базовые validation-rules contractor form реализованы; остается parity persistence для nested grids (users/accounts/contact persons) и richer role checkers.
+- Реализован baseline role-permissions wiring для contractors list (lookups.permissions -> disabled actions на UI).
 - Runtime backend smoke всё ещё ограничен отсутствием docker/postgres.
 Next:
-- Реализовать backend persistence для users/accounts/contact persons в create/edit save и покрыть integration tests на parity-правила process().
+- Расширить role-checkers до backend guardrails для edit/create endpoints и сверить с legacy matrix.
+- Прогнать full backend suite с Docker/Testcontainers и зафиксировать smoke-артефакты.

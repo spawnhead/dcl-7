@@ -1,18 +1,28 @@
 package com.dcl.modern.contractor.application;
 
+import com.dcl.modern.contractor.api.ContractorDtos.ContractorAccountRow;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorBlockRequest;
+import com.dcl.modern.contractor.api.ContractorDtos.ContractorContactPersonRow;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorDataRequest;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorDataResponse;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorFormResponse;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorLookupsResponse;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorLookupsResponse.FilterDefaults;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorLookupsResponse.Lookups;
+import com.dcl.modern.contractor.api.ContractorDtos.ContractorPermissions;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorRow;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorSaveRequest;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorSaveResponse;
+import com.dcl.modern.contractor.api.ContractorDtos.ContractorUserRow;
 import com.dcl.modern.contractor.api.ContractorDtos.LookupValue;
 import com.dcl.modern.contractor.domain.Contractor;
+import com.dcl.modern.contractor.domain.account.Account;
+import com.dcl.modern.contractor.domain.contactperson.ContactPerson;
+import com.dcl.modern.contractor.domain.user.ContractorUser;
 import com.dcl.modern.contractor.infrastructure.ContractorRepository;
+import com.dcl.modern.contractor.infrastructure.account.AccountRepository;
+import com.dcl.modern.contractor.infrastructure.contactperson.ContactPersonRepository;
+import com.dcl.modern.contractor.infrastructure.user.ContractorUserRepository;
 import com.dcl.modern.shared.api.NotFoundException;
 import java.util.List;
 import org.springframework.data.domain.PageRequest;
@@ -25,19 +35,30 @@ import org.springframework.web.server.ResponseStatusException;
 public class ContractorService {
 
   private final ContractorRepository repository;
+  private final ContractorUserRepository userRepository;
+  private final AccountRepository accountRepository;
+  private final ContactPersonRepository contactPersonRepository;
 
-  public ContractorService(ContractorRepository repository) {
+  public ContractorService(
+      ContractorRepository repository,
+      ContractorUserRepository userRepository,
+      AccountRepository accountRepository,
+      ContactPersonRepository contactPersonRepository) {
     this.repository = repository;
+    this.userRepository = userRepository;
+    this.accountRepository = accountRepository;
+    this.contactPersonRepository = contactPersonRepository;
   }
 
   @Transactional(readOnly = true)
-  public ContractorLookupsResponse lookups(boolean canCreate) {
+  public ContractorLookupsResponse lookups(String role) {
+    var permissions = permissions(role);
     return new ContractorLookupsResponse(
         new FilterDefaults("", "", "", "", "", "", null, null),
         new Lookups(
             List.of(new LookupValue("1", "Admin"), new LookupValue("2", "User")),
             List.of(new LookupValue("1", "Sales"), new LookupValue("2", "Logistics"))),
-        canCreate);
+        permissions);
   }
 
   @Transactional(readOnly = true)
@@ -79,15 +100,23 @@ public class ContractorService {
         1,
         0,
         "mainPanel",
-        true);
+        true,
+        List.of(new ContractorUserRow(1, "Текущий пользователь")),
+        List.of(
+            new ContractorAccountRow("", "", null, 1, true),
+            new ContractorAccountRow("", "", null, 2, true),
+            new ContractorAccountRow("", "", null, 3, true)),
+        List.of());
   }
 
   @Transactional
   public ContractorSaveResponse create(ContractorSaveRequest request) {
     validateUnpForCreate(request.ctrUnp());
+    validateAccounts(request.accounts());
     var entity = new Contractor();
     apply(entity, request);
     var saved = repository.save(entity);
+    syncChildren(saved.getId(), request);
     return saveResponse(saved.getId(), request.returnTo());
   }
 
@@ -97,6 +126,38 @@ public class ContractorService {
         repository
             .findById(ctrId)
             .orElseThrow(() -> new NotFoundException("Contractor not found: " + ctrId));
+
+    var users =
+        userRepository.findByContractorIdOrderByUserIdAsc(ctrId).stream()
+            .map(u -> new ContractorUserRow(u.getUserId(), "User " + u.getUserId()))
+            .toList();
+
+    var accounts =
+        accountRepository.findByContractorIdOrderByIndexOrderAsc(ctrId).stream()
+            .map(
+                a ->
+                    new ContractorAccountRow(
+                        nullToEmpty(a.getName()),
+                        nullToEmpty(a.getAccount()),
+                        a.getCurrencyId(),
+                        a.getIndexOrder() == null ? 0 : Integer.valueOf(a.getIndexOrder()),
+                        a.getIndexOrder() != null && a.getIndexOrder() <= 3))
+            .toList();
+
+    var contacts =
+        contactPersonRepository.findByContractorIdOrderByIdAsc(ctrId).stream()
+            .map(
+                cp ->
+                    new ContractorContactPersonRow(
+                        cp.getName(),
+                        nullToEmpty(cp.getPhone()),
+                        nullToEmpty(cp.getFax()),
+                        nullToEmpty(cp.getEmail()),
+                        nullToEmpty(cp.getPosition()),
+                        cp.getBlock() == null ? 0 : Integer.valueOf(cp.getBlock()),
+                        cp.getFire() == null ? 0 : Integer.valueOf(cp.getFire())))
+            .toList();
+
     return new ContractorFormResponse(
         entity.getId(),
         normalizeReturnTo(returnTo),
@@ -118,18 +179,23 @@ public class ContractorService {
         1,
         entity.getBlock() == null ? 0 : Integer.valueOf(entity.getBlock()),
         tab == null || tab.isBlank() ? "mainPanel" : tab,
-        false);
+        false,
+        users,
+        accounts,
+        contacts);
   }
 
   @Transactional
   public ContractorSaveResponse update(Integer ctrId, ContractorSaveRequest request) {
     validateUnpForUpdate(request.ctrUnp(), ctrId);
+    validateAccounts(request.accounts());
     var entity =
         repository
             .findById(ctrId)
             .orElseThrow(() -> new NotFoundException("Contractor not found: " + ctrId));
     apply(entity, request);
     repository.save(entity);
+    syncChildren(ctrId, request);
     return saveResponse(entity.getId(), request.returnTo());
   }
 
@@ -148,20 +214,95 @@ public class ContractorService {
     if (!repository.existsById(ctrId)) {
       throw new NotFoundException("Contractor not found: " + ctrId);
     }
+    userRepository.deleteByContractorId(ctrId);
+    accountRepository.deleteByContractorId(ctrId);
+    contactPersonRepository.deleteByContractorId(ctrId);
     repository.deleteById(ctrId);
+  }
+
+  private void syncChildren(Integer contractorId, ContractorSaveRequest request) {
+    userRepository.deleteByContractorId(contractorId);
+    accountRepository.deleteByContractorId(contractorId);
+    contactPersonRepository.deleteByContractorId(contractorId);
+
+    var users = request.users() == null ? List.<ContractorUserRow>of() : request.users();
+    for (var user : users) {
+      var entity = new ContractorUser();
+      entity.setContractorId(contractorId);
+      entity.setUserId(user.userId());
+      userRepository.save(entity);
+    }
+
+    var accounts = request.accounts() == null ? List.<ContractorAccountRow>of() : request.accounts();
+    for (var row : accounts) {
+      if ((row.accAccount() == null || row.accAccount().isBlank())
+          && (row.currencyId() == null)) {
+        continue;
+      }
+      var entity = new Account();
+      entity.setContractorId(contractorId);
+      entity.setName(normalize(row.accName()));
+      entity.setAccount(normalize(row.accAccount()));
+      entity.setCurrencyId(row.currencyId());
+      entity.setIndexOrder((short) row.accIndex().intValue());
+      accountRepository.save(entity);
+    }
+
+    var contacts = request.contactPersons() == null ? List.<ContractorContactPersonRow>of() : request.contactPersons();
+    for (var row : contacts) {
+      var entity = new ContactPerson();
+      entity.setContractorId(contractorId);
+      entity.setName(row.cpsName().trim());
+      entity.setPhone(normalize(row.cpsPhone()));
+      entity.setFax(normalize(row.cpsFax()));
+      entity.setEmail(normalize(row.cpsEmail()));
+      entity.setPosition(normalize(row.cpsPosition()));
+      entity.setBlock((short) (row.cpsBlock() == null ? 0 : row.cpsBlock().intValue()));
+      entity.setFire((short) (row.cpsFire() == null ? 0 : row.cpsFire().intValue()));
+      contactPersonRepository.save(entity);
+    }
+  }
+
+
+  private ContractorPermissions permissions(String role) {
+    var isAdmin = "ADMIN".equalsIgnoreCase(role);
+    return new ContractorPermissions(isAdmin, isAdmin, isAdmin, isAdmin);
   }
 
   private void validateUnpForCreate(String unp) {
     var normalized = normalize(unp);
     if (normalized != null && repository.existsByUnpIgnoreCase(normalized)) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Контрагент с таким УНП уже существует");
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Контрагент с таким УНП уже существует");
     }
   }
 
   private void validateUnpForUpdate(String unp, Integer ctrId) {
     var normalized = normalize(unp);
     if (normalized != null && repository.existsByUnpIgnoreCaseAndIdNot(normalized, ctrId)) {
-      throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Контрагент с таким УНП уже существует");
+      throw new ResponseStatusException(
+          HttpStatus.BAD_REQUEST, "Контрагент с таким УНП уже существует");
+    }
+  }
+
+  private void validateAccounts(List<ContractorAccountRow> accounts) {
+    if (accounts == null) {
+      return;
+    }
+    for (var row : accounts) {
+      var hasAccount = row.accAccount() != null && !row.accAccount().isBlank();
+      var hasCurrency = row.currencyId() != null;
+      if (row.isDefault()) {
+        if (hasAccount && !hasCurrency) {
+          throw new ResponseStatusException(
+              HttpStatus.BAD_REQUEST,
+              "Для default-счета при заполненном счете требуется валюта");
+        }
+      } else if (hasAccount != hasCurrency) {
+        throw new ResponseStatusException(
+            HttpStatus.BAD_REQUEST,
+            "Для custom-счета необходимо заполнить и счет, и валюту");
+      }
     }
   }
 

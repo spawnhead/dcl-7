@@ -15,9 +15,10 @@ import com.dcl.modern.contractor.api.ContractorDtos.ContractorFormResponse;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorLookupsResponse;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorLookupsResponse.FilterDefaults;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorLookupsResponse.Lookups;
-import com.dcl.modern.contractor.api.ContractorDtos.ContractorRow;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorSaveRequest;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorSaveResponse;
+import com.dcl.modern.contractor.api.ContractorDtos.ContractorPermissions;
+import com.dcl.modern.contractor.api.ContractorDtos.ContractorRow;
 import com.dcl.modern.contractor.api.ContractorDtos.LookupValue;
 import com.dcl.modern.contractor.application.ContractorService;
 import org.junit.jupiter.api.Test;
@@ -38,19 +39,20 @@ class ContractorControllerTest {
 
   @Test
   void shouldReturnLookups() throws Exception {
-    org.mockito.Mockito.when(service.lookups(true))
+    org.mockito.Mockito.when(service.lookups("ADMIN"))
         .thenReturn(
             new ContractorLookupsResponse(
                 new FilterDefaults("", "", "", "", "", "", null, null),
                 new Lookups(
                     java.util.List.of(new LookupValue("1", "Admin")),
                     java.util.List.of(new LookupValue("1", "Sales"))),
-                true));
+                new ContractorPermissions(true, true, true, true)));
 
     mockMvc
         .perform(get("/api/contractors/lookups").header("X-Role", "ADMIN"))
         .andExpect(status().isOk())
-        .andExpect(jsonPath("$.canCreate").value(true));
+        .andExpect(jsonPath("$.permissions.canCreate").value(true))
+        .andExpect(jsonPath("$.permissions.canDelete").value(true));
   }
 
   @Test
@@ -98,7 +100,10 @@ class ContractorControllerTest {
                 1,
                 0,
                 "mainPanel",
-                true));
+                true,
+                java.util.List.of(),
+                java.util.List.of(),
+                java.util.List.of()));
 
     mockMvc
         .perform(get("/api/contractors/create/open").param("returnTo", "contractors"))

@@ -5,15 +5,22 @@ import { loadSession } from '../auth/session'
 import {
   blockContractor,
   deleteContractor,
+  fetchContractorLookups,
   fetchContractors,
   type Contractor,
+  type ContractorPermissions,
 } from '../api/contractors'
 
 export function ContractorsPanel() {
   const navigate = useNavigate()
   const session = loadSession()
   const role = session?.role ?? 'USER'
-  const isAdmin = role === 'ADMIN'
+  const [permissions, setPermissions] = useState<ContractorPermissions>({
+    canCreate: false,
+    canEdit: false,
+    canBlock: false,
+    canDelete: false,
+  })
 
   const [name, setName] = useState('')
   const [fullName, setFullName] = useState('')
@@ -44,7 +51,16 @@ export function ContractorsPanel() {
   }
 
   useEffect(() => {
-    void load(1)
+    const init = async () => {
+      try {
+        const lookups = await fetchContractorLookups(role)
+        setPermissions(lookups.permissions)
+      } catch {
+        setError('Не удалось загрузить права на действия с контрагентами')
+      }
+      await load(1)
+    }
+    void init()
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
@@ -72,7 +88,8 @@ export function ContractorsPanel() {
         <button
           type="button"
           onClick={() => void navigate({ to: '/references/contractors/new' })}
-          className="rounded bg-slate-900 px-3 py-2 text-white"
+          disabled={!permissions.canCreate}
+          className="rounded bg-slate-900 px-3 py-2 text-white disabled:opacity-50"
         >
           Создать
         </button>
@@ -134,7 +151,7 @@ export function ContractorsPanel() {
                 <input
                   type="checkbox"
                   checked={item.ctrBlock === '1'}
-                  disabled={!isAdmin}
+                  disabled={!permissions.canBlock}
                   onChange={async (e) => {
                     await blockContractor(Number(item.ctrId), e.target.checked ? 1 : 0, role)
                     await load(page)
@@ -145,7 +162,8 @@ export function ContractorsPanel() {
                 <div className="flex gap-2">
                   <button
                     type="button"
-                    className="rounded border px-2 py-1"
+                    className="rounded border px-2 py-1 disabled:opacity-50"
+                    disabled={!permissions.canEdit}
                     onClick={() => void navigate({ to: '/references/contractors/$ctrId/edit', params: { ctrId: item.ctrId } })}
                   >
                     Изменить
@@ -153,7 +171,7 @@ export function ContractorsPanel() {
                   <button
                     type="button"
                     className="rounded border border-red-200 px-2 py-1 text-red-700 disabled:opacity-50"
-                    disabled={!isAdmin || item.occupied}
+                    disabled={!permissions.canDelete || item.occupied}
                     onClick={async () => {
                       const ok = window.confirm('Удалить контрагента?')
                       if (!ok) return

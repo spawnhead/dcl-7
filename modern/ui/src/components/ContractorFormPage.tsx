@@ -6,7 +6,10 @@ import {
   openContractorEdit,
   saveContractorCreate,
   saveContractorEdit,
+  type ContractorAccountRow,
+  type ContractorContactPersonRow,
   type ContractorForm,
+  type ContractorUserRow,
 } from '../api/contractors'
 
 type TabKey =
@@ -16,25 +19,12 @@ type TabKey =
   | 'contactPersonsContractor'
   | 'commentContractor'
 
-type AccountRow = {
-  id: string
-  account: string
-  currencyId: string
-  isDefault: boolean
-}
-
 const tabs: Array<{ key: TabKey; label: string }> = [
   { key: 'mainPanel', label: 'Главная' },
   { key: 'usersContractor', label: 'Курируют' },
   { key: 'accountsContractor', label: 'Расчетные счета и банковские реквизиты' },
   { key: 'contactPersonsContractor', label: 'Контактные лица' },
   { key: 'commentContractor', label: 'Комментарии' },
-]
-
-const defaultAccounts: AccountRow[] = [
-  { id: 'd1', account: '', currencyId: '', isDefault: true },
-  { id: 'd2', account: '', currencyId: '', isDefault: true },
-  { id: 'd3', account: '', currencyId: '', isDefault: true },
 ]
 
 const defaultForm: ContractorForm = {
@@ -59,6 +49,13 @@ const defaultForm: ContractorForm = {
   ctrBlock: 0,
   activeTab: 'mainPanel',
   isNewDoc: true,
+  users: [{ userId: 1, userFullName: 'Текущий пользователь' }],
+  accounts: [
+    { accName: '', accAccount: '', currencyId: null, accIndex: 1, isDefault: true },
+    { accName: '', accAccount: '', currencyId: null, accIndex: 2, isDefault: true },
+    { accName: '', accAccount: '', currencyId: null, accIndex: 3, isDefault: true },
+  ],
+  contactPersons: [],
 }
 
 export function ContractorFormPage() {
@@ -69,9 +66,6 @@ export function ContractorFormPage() {
 
   const [form, setForm] = useState<ContractorForm>(defaultForm)
   const [activeTab, setActiveTab] = useState<TabKey>('mainPanel')
-  const [accounts, setAccounts] = useState<AccountRow[]>(defaultAccounts)
-  const [users, setUsers] = useState<string[]>(['Текущий пользователь'])
-  const [contactPersons, setContactPersons] = useState<string[]>([])
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [tabErrors, setTabErrors] = useState<Partial<Record<TabKey, string>>>({})
@@ -79,8 +73,10 @@ export function ContractorFormPage() {
   useEffect(() => {
     const load = async () => {
       try {
-        const data = isEdit ? await openContractorEdit(String(ctrId)) : await openContractorCreate('contractors')
-        setForm(data)
+        const data = isEdit
+          ? await openContractorEdit(String(ctrId))
+          : await openContractorCreate('contractors')
+        setForm({ ...defaultForm, ...data })
         setActiveTab((data.activeTab as TabKey) ?? 'mainPanel')
       } catch {
         setError('Не удалось загрузить форму контрагента')
@@ -89,11 +85,27 @@ export function ContractorFormPage() {
     void load()
   }, [ctrId, isEdit])
 
-  const address = useMemo(() => {
-    return [form.ctrIndex, form.ctrRegion, form.ctrPlace, form.ctrStreet, form.ctrBuilding, form.ctrAddInfo]
-      .filter((x) => x && x.trim())
-      .join(', ')
-  }, [form.ctrAddInfo, form.ctrBuilding, form.ctrIndex, form.ctrPlace, form.ctrRegion, form.ctrStreet])
+  const address = useMemo(
+    () =>
+      [
+        form.ctrIndex,
+        form.ctrRegion,
+        form.ctrPlace,
+        form.ctrStreet,
+        form.ctrBuilding,
+        form.ctrAddInfo,
+      ]
+        .filter((x) => x && x.trim())
+        .join(', '),
+    [
+      form.ctrAddInfo,
+      form.ctrBuilding,
+      form.ctrIndex,
+      form.ctrPlace,
+      form.ctrRegion,
+      form.ctrStreet,
+    ],
+  )
 
   const validate = () => {
     const next: Partial<Record<TabKey, string>> = {}
@@ -102,13 +114,16 @@ export function ContractorFormPage() {
       next.mainPanel = 'Заполните обязательные поля на вкладке «Главная»'
     }
 
-    if (form.ctrUnp.trim() && (form.ctrUnp.trim().length < 6 || form.ctrUnp.trim().length > 15)) {
+    if (
+      form.ctrUnp.trim() &&
+      (form.ctrUnp.trim().length < 6 || form.ctrUnp.trim().length > 15)
+    ) {
       next.mainPanel = 'УНП должен быть от 6 до 15 символов'
     }
 
-    const hasAccountError = accounts.some((row) => {
-      const hasAccount = row.account.trim().length > 0
-      const hasCurrency = row.currencyId.trim().length > 0
+    const hasAccountError = form.accounts.some((row) => {
+      const hasAccount = row.accAccount.trim().length > 0
+      const hasCurrency = row.currencyId !== null
       if (row.isDefault) {
         return hasAccount && !hasCurrency
       }
@@ -117,7 +132,7 @@ export function ContractorFormPage() {
 
     if (hasAccountError) {
       next.accountsContractor =
-        'Проверьте расчетные счета: для default-строки при заполненном счете нужна валюта, для custom-строки оба поля обязательны'
+        'Проверьте расчетные счета: default-счет требует валюту при заполнении счета, custom-счет требует оба поля'
     }
 
     setTabErrors(next)
@@ -160,6 +175,9 @@ export function ContractorFormPage() {
       currencyId: form.currencyId,
       ctrBlock: form.ctrBlock,
       activeTab,
+      users: form.users,
+      accounts: form.accounts,
+      contactPersons: form.contactPersons,
     }
 
     try {
@@ -214,39 +232,40 @@ export function ContractorFormPage() {
 
         {activeTab === 'usersContractor' && (
           <div className="space-y-2">
-            <p className="text-sm text-slate-600">Курируют (baseline)</p>
-            {users.map((user, index) => (
-              <div key={`${user}-${index}`} className="rounded border px-3 py-2">{user}</div>
+            {form.users.map((user, index) => (
+              <div key={`${user.userId}-${index}`} className="grid grid-cols-5 gap-2">
+                <input className="col-span-4 rounded border px-3 py-2" value={user.userFullName} onChange={(e) => setForm((f) => ({ ...f, users: f.users.map((u, i) => i === index ? { ...u, userFullName: e.target.value } : u) }))} />
+                <button type="button" className="rounded border px-3 py-2" onClick={() => setForm((f) => ({ ...f, users: f.users.filter((_, i) => i !== index) }))}>Удалить</button>
+              </div>
             ))}
-            <button type="button" className="rounded border px-3 py-2" onClick={() => setUsers((u) => [...u, `Пользователь ${u.length + 1}`])}>Добавить пользователя</button>
+            <button type="button" className="rounded border px-3 py-2" onClick={() => setForm((f) => ({ ...f, users: [...f.users, { userId: Date.now(), userFullName: 'Новый пользователь' }] }))}>Добавить пользователя</button>
           </div>
         )}
 
         {activeTab === 'accountsContractor' && (
           <div className="space-y-2">
-            <p className="text-sm text-slate-600">Счета: первые 3 строки — default, далее custom.</p>
-            {accounts.map((row, index) => (
-              <div key={row.id} className="grid grid-cols-5 gap-2">
-                <input className="col-span-3 rounded border px-3 py-2" placeholder={`Счет #${index + 1}`} value={row.account} maxLength={35} onChange={(e) => setAccounts((all) => all.map((it) => (it.id === row.id ? { ...it, account: e.target.value } : it)))} />
-                <input className="rounded border px-3 py-2" placeholder="Currency ID" value={row.currencyId} onChange={(e) => setAccounts((all) => all.map((it) => (it.id === row.id ? { ...it, currencyId: e.target.value } : it)))} />
-                <button type="button" className="rounded border px-3 py-2" disabled={row.isDefault} onClick={() => setAccounts((all) => all.filter((it) => it.id !== row.id))}>Удалить</button>
+            {form.accounts.map((row, index) => (
+              <div key={`${row.accIndex}-${index}`} className="grid grid-cols-5 gap-2">
+                <input className="col-span-2 rounded border px-3 py-2" placeholder={`Название #${index + 1}`} value={row.accName} onChange={(e) => setForm((f) => ({ ...f, accounts: f.accounts.map((r, i) => i === index ? { ...r, accName: e.target.value } : r) }))} />
+                <input className="col-span-2 rounded border px-3 py-2" placeholder={`Счет #${index + 1}`} value={row.accAccount} maxLength={35} onChange={(e) => setForm((f) => ({ ...f, accounts: f.accounts.map((r, i) => i === index ? { ...r, accAccount: e.target.value } : r) }))} />
+                <input className="rounded border px-3 py-2" placeholder="CUR" value={row.currencyId ?? ''} onChange={(e) => setForm((f) => ({ ...f, accounts: f.accounts.map((r, i) => i === index ? { ...r, currencyId: e.target.value ? Number(e.target.value) : null } : r) }))} />
               </div>
             ))}
-            <button type="button" className="rounded border px-3 py-2" onClick={() => setAccounts((all) => [...all, { id: `c${Date.now()}`, account: '', currencyId: '', isDefault: false }])}>Добавить счет</button>
+            <button type="button" className="rounded border px-3 py-2" onClick={() => setForm((f) => ({ ...f, accounts: [...f.accounts, { accName: '', accAccount: '', currencyId: null, accIndex: f.accounts.length + 1, isDefault: false }] }))}>Добавить счет</button>
           </div>
         )}
 
         {activeTab === 'contactPersonsContractor' && (
           <div className="space-y-2">
-            <p className="text-sm text-slate-600">Контактные лица (baseline)</p>
-            {contactPersons.length === 0 ? (
-              <div className="rounded border border-dashed p-3 text-sm text-slate-500">Нет контактных лиц</div>
-            ) : (
-              contactPersons.map((person, index) => (
-                <div key={`${person}-${index}`} className="rounded border px-3 py-2">{person}</div>
-              ))
-            )}
-            <button type="button" className="rounded border px-3 py-2" onClick={() => setContactPersons((p) => [...p, `Контакт ${p.length + 1}`])}>Добавить контакт</button>
+            {form.contactPersons.map((person, index) => (
+              <div key={`${person.cpsName}-${index}`} className="grid grid-cols-4 gap-2">
+                <input className="rounded border px-3 py-2" placeholder="ФИО" value={person.cpsName} onChange={(e) => setForm((f) => ({ ...f, contactPersons: f.contactPersons.map((p, i) => i === index ? { ...p, cpsName: e.target.value } : p) }))} />
+                <input className="rounded border px-3 py-2" placeholder="Телефон" value={person.cpsPhone} onChange={(e) => setForm((f) => ({ ...f, contactPersons: f.contactPersons.map((p, i) => i === index ? { ...p, cpsPhone: e.target.value } : p) }))} />
+                <input className="rounded border px-3 py-2" placeholder="Email" value={person.cpsEmail} onChange={(e) => setForm((f) => ({ ...f, contactPersons: f.contactPersons.map((p, i) => i === index ? { ...p, cpsEmail: e.target.value } : p) }))} />
+                <button type="button" className="rounded border px-3 py-2" onClick={() => setForm((f) => ({ ...f, contactPersons: f.contactPersons.filter((_, i) => i !== index) }))}>Удалить</button>
+              </div>
+            ))}
+            <button type="button" className="rounded border px-3 py-2" onClick={() => setForm((f) => ({ ...f, contactPersons: [...f.contactPersons, { cpsName: 'Новый контакт', cpsPhone: '', cpsFax: '', cpsEmail: '', cpsPosition: '', cpsBlock: 0, cpsFire: 0 }] }))}>Добавить контакт</button>
           </div>
         )}
 

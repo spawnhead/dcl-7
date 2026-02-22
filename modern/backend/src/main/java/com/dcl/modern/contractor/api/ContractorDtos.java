@@ -1,5 +1,6 @@
 package com.dcl.modern.contractor.api;
 
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -11,7 +12,8 @@ public class ContractorDtos {
 
   public record LookupValue(String id, String name) {}
 
-  public record ContractorLookupsResponse(FilterDefaults defaults, Lookups lookups, boolean canCreate) {
+  public record ContractorLookupsResponse(
+      FilterDefaults defaults, Lookups lookups, ContractorPermissions permissions) {
     public record FilterDefaults(
         String ctrName,
         String ctrFullName,
@@ -24,6 +26,9 @@ public class ContractorDtos {
 
     public record Lookups(List<LookupValue> users, List<LookupValue> departments) {}
   }
+
+  public record ContractorPermissions(
+      boolean canCreate, boolean canEdit, boolean canBlock, boolean canDelete) {}
 
   public record ContractorDataRequest(
       String ctrName,
@@ -57,6 +62,24 @@ public class ContractorDtos {
 
   public record ContractorBlockRequest(@NotNull Integer ctrId, @NotNull @Min(0) @Max(1) Integer block) {}
 
+  public record ContractorUserRow(@NotNull Integer userId, @NotBlank @Size(max = 200) String userFullName) {}
+
+  public record ContractorAccountRow(
+      @Size(max = 100) String accName,
+      @Size(max = 35) String accAccount,
+      Integer currencyId,
+      @NotNull Integer accIndex,
+      boolean isDefault) {}
+
+  public record ContractorContactPersonRow(
+      @NotBlank @Size(max = 200) String cpsName,
+      @Size(max = 150) String cpsPhone,
+      @Size(max = 150) String cpsFax,
+      @Size(max = 50) String cpsEmail,
+      @Size(max = 150) String cpsPosition,
+      Integer cpsBlock,
+      Integer cpsFire) {}
+
   public record ContractorFormResponse(
       Integer ctrId,
       String returnTo,
@@ -78,7 +101,10 @@ public class ContractorDtos {
       Integer currencyId,
       Integer ctrBlock,
       String activeTab,
-      boolean isNewDoc) {}
+      boolean isNewDoc,
+      List<ContractorUserRow> users,
+      List<ContractorAccountRow> accounts,
+      List<ContractorContactPersonRow> contactPersons) {}
 
   public record ContractorSaveRequest(
       @NotBlank @Size(max = 200) String ctrName,
@@ -99,7 +125,10 @@ public class ContractorDtos {
       Integer currencyId,
       Integer ctrBlock,
       String returnTo,
-      String activeTab) {}
+      String activeTab,
+      @Valid List<ContractorUserRow> users,
+      @Valid List<ContractorAccountRow> accounts,
+      @Valid List<ContractorContactPersonRow> contactPersons) {}
 
   public record ContractorSaveResponse(Integer ctrId, String returnTo, String redirectTo, String message) {}
 }

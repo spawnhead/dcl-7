@@ -37,7 +37,7 @@ public class ContractorController {
   public ContractorLookupsResponse lookups(
       @RequestHeader(name = "X-Role", defaultValue = "USER") String role) {
     // Traceability: ContractorsAction#input + users/departments serverList lookups.
-    return service.lookups(isAdmin(role));
+    return service.lookups(role);
   }
 
   @PostMapping("/data")
