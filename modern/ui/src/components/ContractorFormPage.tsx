@@ -1,6 +1,7 @@
 import { FormEvent, useEffect, useMemo, useState } from 'react'
 import { useNavigate, useParams } from '@tanstack/react-router'
 
+import { loadSession } from '../auth/session'
 import {
   openContractorCreate,
   openContractorEdit,
@@ -63,6 +64,8 @@ export function ContractorFormPage() {
   const params = useParams({ strict: false }) as { ctrId?: string }
   const ctrId = params?.ctrId
   const isEdit = Boolean(ctrId)
+  const session = loadSession()
+  const role = session?.role ?? 'USER'
 
   const [form, setForm] = useState<ContractorForm>(defaultForm)
   const [activeTab, setActiveTab] = useState<TabKey>('mainPanel')
@@ -74,8 +77,8 @@ export function ContractorFormPage() {
     const load = async () => {
       try {
         const data = isEdit
-          ? await openContractorEdit(String(ctrId))
-          : await openContractorCreate('contractors')
+          ? await openContractorEdit(String(ctrId), role)
+          : await openContractorCreate('contractors', role)
         setForm({ ...defaultForm, ...data })
         setActiveTab((data.activeTab as TabKey) ?? 'mainPanel')
       } catch {
@@ -83,7 +86,7 @@ export function ContractorFormPage() {
       }
     }
     void load()
-  }, [ctrId, isEdit])
+  }, [ctrId, isEdit, role])
 
   const address = useMemo(
     () =>
@@ -182,12 +185,12 @@ export function ContractorFormPage() {
 
     try {
       const result = isEdit
-        ? await saveContractorEdit(String(ctrId), payload)
-        : await saveContractorCreate(payload)
+        ? await saveContractorEdit(String(ctrId), payload, role)
+        : await saveContractorCreate(payload, role)
       setSuccess(result.message)
       await navigate({ to: '/references/contractors' })
     } catch {
-      setError('Ошибка сохранения контрагента')
+      setError('Ошибка сохранения контрагента (проверьте права доступа)')
     }
   }
 

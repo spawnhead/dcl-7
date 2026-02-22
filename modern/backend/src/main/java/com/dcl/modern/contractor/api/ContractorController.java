@@ -47,12 +47,17 @@ public class ContractorController {
 
   @GetMapping("/create/open")
   public ContractorFormResponse openCreate(
-      @RequestParam(name = "returnTo", required = false) String returnTo) {
+      @RequestParam(name = "returnTo", required = false) String returnTo,
+      @RequestHeader(name = "X-Role", defaultValue = "USER") String role) {
+    ensureAdmin(role);
     return service.openCreate(returnTo);
   }
 
   @PostMapping("/create/save")
-  public ContractorSaveResponse create(@RequestBody @Valid ContractorSaveRequest request) {
+  public ContractorSaveResponse create(
+      @RequestBody @Valid ContractorSaveRequest request,
+      @RequestHeader(name = "X-Role", defaultValue = "USER") String role) {
+    ensureAdmin(role);
     return service.create(request);
   }
 
@@ -60,14 +65,18 @@ public class ContractorController {
   public ContractorFormResponse openEdit(
       @PathVariable Integer ctrId,
       @RequestParam(name = "returnTo", required = false) String returnTo,
-      @RequestParam(name = "tab", required = false) String tab) {
+      @RequestParam(name = "tab", required = false) String tab,
+      @RequestHeader(name = "X-Role", defaultValue = "USER") String role) {
+    ensureAdmin(role);
     return service.openEdit(ctrId, returnTo, tab);
   }
 
   @PutMapping("/{ctrId}/edit/save")
   public ContractorSaveResponse update(
       @PathVariable Integer ctrId,
-      @RequestBody @Valid ContractorSaveRequest request) {
+      @RequestBody @Valid ContractorSaveRequest request,
+      @RequestHeader(name = "X-Role", defaultValue = "USER") String role) {
+    ensureAdmin(role);
     return service.update(ctrId, request);
   }
 

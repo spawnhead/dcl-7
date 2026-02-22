@@ -129,26 +129,39 @@ export async function fetchContractors(payload: ContractorFilter): Promise<Contr
   return data
 }
 
-export async function openContractorCreate(returnTo = 'contractors'): Promise<ContractorForm> {
-  const { data } = await api.get<ContractorForm>('/contractors/create/open', { params: { returnTo } })
+export async function openContractorCreate(returnTo = 'contractors', role = 'USER'): Promise<ContractorForm> {
+  const { data } = await api.get<ContractorForm>('/contractors/create/open', {
+    params: { returnTo },
+    headers: { 'X-Role': role },
+  })
   return data
 }
 
-export async function openContractorEdit(ctrId: string): Promise<ContractorForm> {
-  const { data } = await api.get<ContractorForm>(`/contractors/${ctrId}/edit/open`)
+export async function openContractorEdit(ctrId: string, role = 'USER'): Promise<ContractorForm> {
+  const { data } = await api.get<ContractorForm>(`/contractors/${ctrId}/edit/open`, {
+    headers: { 'X-Role': role },
+  })
   return data
 }
 
-export async function saveContractorCreate(payload: ContractorSavePayload): Promise<ContractorSaveResult> {
-  const { data } = await api.post<ContractorSaveResult>('/contractors/create/save', payload)
+export async function saveContractorCreate(
+  payload: ContractorSavePayload,
+  role = 'USER',
+): Promise<ContractorSaveResult> {
+  const { data } = await api.post<ContractorSaveResult>('/contractors/create/save', payload, {
+    headers: { 'X-Role': role },
+  })
   return data
 }
 
 export async function saveContractorEdit(
   ctrId: string,
   payload: ContractorSavePayload,
+  role = 'USER',
 ): Promise<ContractorSaveResult> {
-  const { data } = await api.put<ContractorSaveResult>(`/contractors/${ctrId}/edit/save`, payload)
+  const { data } = await api.put<ContractorSaveResult>(`/contractors/${ctrId}/edit/save`, payload, {
+    headers: { 'X-Role': role },
+  })
   return data
 }
 

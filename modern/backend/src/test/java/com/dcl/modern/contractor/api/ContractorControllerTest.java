@@ -106,7 +106,7 @@ class ContractorControllerTest {
                 java.util.List.of()));
 
     mockMvc
-        .perform(get("/api/contractors/create/open").param("returnTo", "contractors"))
+        .perform(get("/api/contractors/create/open").param("returnTo", "contractors").header("X-Role", "ADMIN"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.isNewDoc").value(true));
   }
@@ -120,6 +120,7 @@ class ContractorControllerTest {
     mockMvc
         .perform(
             post("/api/contractors/create/save")
+                .header("X-Role", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"ctrName\":\"A\",\"ctrFullName\":\"AA\",\"countryId\":1,\"reputationId\":1}"))
         .andExpect(status().isOk())
@@ -135,6 +136,7 @@ class ContractorControllerTest {
     mockMvc
         .perform(
             put("/api/contractors/5/edit/save")
+                .header("X-Role", "ADMIN")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"ctrName\":\"A\",\"ctrFullName\":\"AA\",\"countryId\":1,\"reputationId\":1}"))
         .andExpect(status().isOk())
@@ -150,6 +152,37 @@ class ContractorControllerTest {
                 .content("{\"ctrId\":1,\"block\":1}"))
         .andExpect(status().isForbidden());
   }
+
+  @Test
+  void shouldForbidCreateOpenForUser() throws Exception {
+    mockMvc.perform(get("/api/contractors/create/open")).andExpect(status().isForbidden());
+  }
+
+  @Test
+  void shouldForbidCreateSaveForUser() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/contractors/create/save")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"ctrName\":\"A\",\"ctrFullName\":\"AA\",\"countryId\":1,\"reputationId\":1}"))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void shouldForbidEditOpenForUser() throws Exception {
+    mockMvc.perform(get("/api/contractors/1/edit/open")).andExpect(status().isForbidden());
+  }
+
+  @Test
+  void shouldForbidEditSaveForUser() throws Exception {
+    mockMvc
+        .perform(
+            put("/api/contractors/5/edit/save")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"ctrName\":\"A\",\"ctrFullName\":\"AA\",\"countryId\":1,\"reputationId\":1}"))
+        .andExpect(status().isForbidden());
+  }
+
 
   @Test
   void shouldAllowDeleteForAdmin() throws Exception {
