@@ -1,0 +1,5 @@
+{
+  "method": "GET",
+  "url": "/MarginAction.do?dispatch=generateExcel",
+  "note": "Triggered by iframe injection via generateExcelClick(); response is Excel file download."
+}

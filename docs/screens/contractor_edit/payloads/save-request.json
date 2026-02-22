@@ -1,0 +1,44 @@
+{
+  "ctrId": "1",
+  "ctrName": "ООО Рога и Копыта",
+  "ctrFullName": "Общество с ограниченной ответственностью Рога и Копыта",
+  "country": { "id": "BY" },
+  "ctrIndex": "220000",
+  "ctrRegion": "Минская обл.",
+  "ctrPlace": "г. Минск",
+  "ctrStreet": "ул. Примерная",
+  "ctrBuilding": "д. 1",
+  "ctrAddInfo": "офис 100",
+  "ctrPhone": "+375 17 999-99-99",
+  "ctrFax": "+375 17 123-45-68",
+  "ctrEmail": "info@roga.by",
+  "ctrUnp": "100000001",
+  "ctrOkpo": "123456789",
+  "ctrBankProps": "ОАО «Приорбанк»\nIBAN: BY36PJRBS30141345678901234\nSWIFT: PJCBBY2X",
+  "ctrComment": "Надежный партнер",
+  "reputation": { "id": "1" },
+  "gridUsers": [
+    { "number": "1", "user": { "usrId": "dev_admin" } }
+  ],
+  "gridAccounts": [
+    { "number": "1", "accName": "Расчетный счет (BYN)", "accAccount": "BY36PJRBS30141345678901234", "currency": { "id": "BYN" } },
+    { "number": "2", "accName": "Расчетный счет (USD)", "accAccount": "BY36PJRBS30141345678901235", "currency": { "id": "USD" } },
+    { "number": "3", "accName": "Валютный счет", "accAccount": "", "currency": { "id": "" } }
+  ],
+  "gridContactPersons": [
+    {
+      "cpsId": "1",
+      "cpsName": "Иванов Иван",
+      "cpsPosition": "Директор",
+      "cpsOnReason": "",
+      "cpsPhone": "+375 29 111-11-11",
+      "cpsMobPhone": "",
+      "cpsFax": "",
+      "cpsEmail": "ivanov@roga.by",
+      "cpsContractComment": "",
+      "cpsFire": "0",
+      "cpsBlock": "0"
+    }
+  ],
+  "returnTo": "contractors"
+}

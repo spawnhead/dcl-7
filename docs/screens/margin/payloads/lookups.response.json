@@ -1,0 +1,7 @@
+{
+  "note": "serverList lookups return HTML; example snippet below is illustrative only.",
+  "response": {
+    "contentType": "text/html; charset=UTF-8",
+    "bodySnippet": "<table><tr onclick=\"ItemSelected('1','Иванов И.И.')\"><td>Иванов И.И.</td></tr></table>"
+  }
+}

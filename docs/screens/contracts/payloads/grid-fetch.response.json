@@ -1,0 +1,29 @@
+{
+  "page": 1,
+  "pageSize": 15,
+  "hasNextPage": false,
+  "sort": [
+    {"field": "con_reminder", "direction": "DESC"},
+    {"field": "con_date", "direction": "DESC"},
+    {"field": "con_number", "direction": "DESC"}
+  ],
+  "items": [
+    {
+      "conId": "100101",
+      "conNumber": "CN-2025-001",
+      "conDate": "02.02.2025",
+      "conContractor": "ALFA TRADE",
+      "conSumm": "15 000,00",
+      "conCurrency": "USD",
+      "notes": "Действует до 31.12.2025",
+      "conExecuted": "1",
+      "conUser": "ivanov",
+      "conReminder": "",
+      "conAnnul": "",
+      "attachIdx": 6,
+      "spcCount": 0,
+      "usrIdList": "101;",
+      "depIdList": "20;"
+    }
+  ]
+}

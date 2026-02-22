@@ -1,0 +1,20 @@
+{
+  "note": "Reconstructed from legacy JSP/Action sources; not captured via live HAR.",
+  "requests": [
+    {
+      "method": "GET",
+      "url": "/MarginAction.do?dispatch=input",
+      "purpose": "Load Reports -> Margin screen (filters + iframe placeholder)."
+    },
+    {
+      "method": "GET",
+      "url": "/test/MarginReportGridStandalone.jsp",
+      "purpose": "Load grid iframe (table toolbar + JS)."
+    },
+    {
+      "method": "GET",
+      "url": "/MarginDevData.do?limit=200",
+      "purpose": "Fetch initial grid data from Margin session (JSON)."
+    }
+  ]
+}

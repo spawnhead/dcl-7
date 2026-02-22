@@ -1,0 +1,15 @@
+{
+  "conNumber": "",
+  "conDate": "11.02.2026",
+  "conReusable": false,
+  "conFinalDate": "",
+  "contractor": null,
+  "currency": { "id": "1", "name": "BYN" },
+  "conFaxCopy": false,
+  "conOriginal": false,
+  "seller": { "id": "2", "name": "UAB SMERKONA" },
+  "conAnnul": false,
+  "conAnnulDate": "",
+  "conComment": "",
+  "specifications": []
+}

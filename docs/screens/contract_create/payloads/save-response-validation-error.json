@@ -1,0 +1,9 @@
+{
+  "error": {
+    "code": "VALIDATION_ERROR",
+    "fields": [
+      { "name": "conNumber", "message": "Введите \"Номер\" договора" },
+      { "name": "contractor.id", "message": "Выберите \"Контрагента\"" }
+    ]
+  }
+}

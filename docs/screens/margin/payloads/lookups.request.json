@@ -1,0 +1,44 @@
+{
+  "note": "Legacy serverList lookups return HTML tables (not JSON).",
+  "requests": [
+    {
+      "method": "GET",
+      "url": "/UsersListAction",
+      "query": {
+        "filter": "<search text>",
+        "have_all": "true",
+        "dep_id": "<department.id (only for chief dep)?>"
+      }
+    },
+    {
+      "method": "GET",
+      "url": "/DepartmentsListAction",
+      "query": {
+        "have_all": "true"
+      }
+    },
+    {
+      "method": "GET",
+      "url": "/ContractorsListAction",
+      "query": {
+        "filter": "<search text>",
+        "have_all": "true"
+      }
+    },
+    {
+      "method": "GET",
+      "url": "/StuffCategoriesListAction",
+      "query": {
+        "filter": "<search text>",
+        "have_all": "true"
+      }
+    },
+    {
+      "method": "GET",
+      "url": "/RoutesListAction",
+      "query": {
+        "have_all": "true"
+      }
+    }
+  ]
+}

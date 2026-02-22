@@ -1,0 +1,44 @@
+{
+  "defaults": {
+    "number": "",
+    "contractor": null,
+    "dateBegin": "",
+    "dateEnd": "",
+    "sumMin": null,
+    "sumMax": null,
+    "user": null,
+    "seller": null,
+    "executed": false,
+    "notExecuted": false,
+    "oridinalAbsent": false
+  },
+  "grid": {
+    "page": 1,
+    "pageSize": 15,
+    "hasNextPage": true,
+    "sort": [
+      {"field": "con_reminder", "direction": "DESC"},
+      {"field": "con_date", "direction": "DESC"},
+      {"field": "con_number", "direction": "DESC"}
+    ],
+    "items": [
+      {
+        "conId": "100245",
+        "conNumber": "CN-2026-010",
+        "conDate": "27.09.2026",
+        "conContractor": "ALFA TRADE",
+        "conSumm": "12 500,00",
+        "conCurrency": "USD",
+        "notes": "<span style='color:red'>Нет оригинала договора.</span>",
+        "conExecuted": "0",
+        "conUser": "ivanov",
+        "conReminder": "<span style='color:red'>Укажите срок поставки</span>",
+        "conAnnul": "",
+        "attachIdx": 2,
+        "spcCount": 1,
+        "usrIdList": "101;203;",
+        "depIdList": "20;"
+      }
+    ]
+  }
+}

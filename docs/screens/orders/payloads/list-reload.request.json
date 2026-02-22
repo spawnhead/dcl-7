@@ -1,0 +1,16 @@
+{
+  "method": "POST",
+  "url": "/OrdersAction.do?dispatch=reload",
+  "contentType": "application/x-www-form-urlencoded",
+  "body": {
+    "dispatch": "reload",
+    "contractor_for.name": "BelCustomer LLC",
+    "contractor_for.id": "912",
+    "previousContractorFor.name": "Old Customer",
+    "contract.con_number": "",
+    "contract.con_id": "",
+    "previousContract.con_number": "C-66/2025",
+    "specification.spc_number": "",
+    "specification.spc_id": ""
+  }
+}

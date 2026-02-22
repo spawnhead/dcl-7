@@ -1,0 +1,15 @@
+{
+  "conNumber": "CN-TEST-001",
+  "conDate": "11.02.2026",
+  "conReusable": false,
+  "conFinalDate": "31.12.2026",
+  "contractor": { "id": "101", "name": "ALFA TRADE" },
+  "currency": { "id": "1", "name": "BYN" },
+  "conFaxCopy": false,
+  "conOriginal": true,
+  "seller": { "id": "1", "name": "ЗАО Линтера" },
+  "conAnnul": false,
+  "conAnnulDate": "",
+  "conComment": "Тестовый договор",
+  "specifications": []
+}

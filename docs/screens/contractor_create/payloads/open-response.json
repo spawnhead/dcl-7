@@ -1,0 +1,35 @@
+{
+  "defaults": {
+    "ctrName": "",
+    "ctrFullName": "",
+    "country": null,
+    "ctrIndex": "",
+    "ctrRegion": "",
+    "ctrPlace": "",
+    "ctrStreet": "",
+    "ctrBuilding": "",
+    "ctrAddInfo": "",
+    "ctrPhone": "",
+    "ctrFax": "",
+    "ctrEmail": "",
+    "ctrUnp": "",
+    "ctrOkpo": "",
+    "reputation": null,
+    "gridUsers": [{ "usrId": "1", "userFullName": "Admin User" }],
+    "gridAccounts": [
+      { "accName": "Счёт 1", "accAccount": "", "currency": null },
+      { "accName": "Счёт 2", "accAccount": "", "currency": null },
+      { "accName": "Счёт валютный", "accAccount": "", "currency": null }
+    ],
+    "gridContactPersons": [],
+    "ctrBankProps": "",
+    "ctrComment": ""
+  },
+  "lookups": {
+    "countries": [{ "id": "1", "name": "Беларусь" }],
+    "reputations": [{ "id": "1", "description": "По умолчанию" }],
+    "users": [{ "id": "1", "userFullName": "Admin User" }],
+    "currencies": [{ "id": "1", "name": "BYN" }, { "id": "2", "name": "USD" }]
+  },
+  "returnTo": "contract"
+}

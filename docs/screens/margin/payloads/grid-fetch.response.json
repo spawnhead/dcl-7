@@ -1,0 +1,63 @@
+{
+  "data": [
+    {
+      "ctr_name": "ООО Пример",
+      "cut_name": "BY",
+      "con_number_formatted": "CN-001",
+      "con_date_formatted": "12.03.2024",
+      "spc_number_formatted": "SPC-01",
+      "spc_date_formatted": "20.03.2024",
+      "spc_summ_formatted": "1 000,00",
+      "cur_name": "EUR",
+      "stf_name_show": "Товар A",
+      "shp_number_show": "SHP-12",
+      "shp_date_show": "25.03.2024",
+      "pay_date_show": "30.03.2024",
+      "lps_summ_eur_formatted": "1 000,00",
+      "lps_summ_formatted": "1 100,00",
+      "lps_sum_transport_formatted": "50,00",
+      "lcc_transport_formatted": "30,00",
+      "lps_custom_formatted": "20,00",
+      "lcc_charges_formatted": "15,00",
+      "lcc_montage_formatted": "10,00",
+      "lps_montage_time_formatted": "2,0",
+      "montage_cost_formatted": "5,00",
+      "lcc_update_sum_formatted": "0,00",
+      "summ_formatted": "1 150,00",
+      "summ_zak_formatted": "900,00",
+      "margin_formatted": "250,00",
+      "koeff_formatted": "1,28",
+      "usr_name_show": "Иванов И.И.",
+      "dep_name_show": "Продажи",
+      "itogLine": false,
+      "spc_group_delivery": "",
+      "haveUnblockedPrc": false
+    }
+  ],
+  "view": {
+    "view_contractor": true,
+    "view_country": true,
+    "view_contract": true,
+    "view_stuff_category": true,
+    "view_shipping": true,
+    "view_payment": true,
+    "view_transport": true,
+    "view_transport_sum": true,
+    "view_custom": true,
+    "view_other_sum": true,
+    "view_montage_sum": true,
+    "view_montage_time": true,
+    "view_montage_cost": true,
+    "view_update_sum": true,
+    "view_summ_zak": true,
+    "view_koeff": true,
+    "view_user": true,
+    "view_department": true
+  },
+  "meta": {
+    "rowsTotal": 1,
+    "rowsReturned": 1,
+    "limited": false
+  },
+  "note": "Example values filled for documentation; actual data depends on Margin session and filters."
+}

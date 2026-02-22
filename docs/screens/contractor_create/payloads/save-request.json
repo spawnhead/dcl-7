@@ -1,0 +1,26 @@
+{
+  "ctrName": "ООО Рога и копыта",
+  "ctrFullName": "ООО Рога и копыта",
+  "country": { "id": "1", "name": "Беларусь" },
+  "ctrIndex": "220000",
+  "ctrRegion": "Минская",
+  "ctrPlace": "Минск",
+  "ctrStreet": "ул. Примерная",
+  "ctrBuilding": "1",
+  "ctrAddInfo": "",
+  "ctrPhone": "+375171234567",
+  "ctrFax": "",
+  "ctrEmail": "info@example.by",
+  "ctrUnp": "123456789",
+  "ctrOkpo": "",
+  "reputation": { "id": "1", "description": "По умолчанию" },
+  "gridUsers": [{ "usrId": "1", "userFullName": "Admin User" }],
+  "gridAccounts": [
+    { "accName": "Счёт 1", "accAccount": "BY12345678901234567890123456", "currency": { "id": "1", "name": "BYN" } },
+    { "accName": "Счёт 2", "accAccount": "", "currency": null },
+    { "accName": "Счёт валютный", "accAccount": "", "currency": null }
+  ],
+  "ctrBankProps": "",
+  "ctrComment": "",
+  "returnTo": "contract"
+}

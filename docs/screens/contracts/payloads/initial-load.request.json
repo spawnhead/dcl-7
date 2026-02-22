@@ -1,0 +1,4 @@
+{
+  "method": "GET",
+  "url": "/api/contracts/lookups?includeDefaults=true&includeFirstPage=true"
+}

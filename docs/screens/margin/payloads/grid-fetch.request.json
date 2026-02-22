@@ -1,0 +1,8 @@
+{
+  "method": "GET",
+  "url": "/MarginDevData.do",
+  "query": {
+    "limit": "200"
+  },
+  "note": "Limit defaults to 200; max 1000. Response shape from MarginDevDataAction."
+}

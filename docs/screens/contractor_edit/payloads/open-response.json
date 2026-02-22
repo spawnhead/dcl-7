@@ -1,0 +1,84 @@
+{
+  "ctrId": "1",
+  "isNewDoc": false,
+  "ctrName": "ООО Рога и Копыта",
+  "ctrFullName": "Общество с ограниченной ответственностью Рога и Копыта",
+  "country": { "id": "BY", "name": "Беларусь" },
+  "ctrIndex": "220000",
+  "ctrRegion": "Минская обл.",
+  "ctrPlace": "г. Минск",
+  "ctrStreet": "ул. Примерная",
+  "ctrBuilding": "д. 1",
+  "ctrAddInfo": "офис 100",
+  "ctrAddress": "220000, Минская обл., г. Минск, ул. Примерная, д. 1, офис 100",
+  "ctrPhone": "+375 17 123-45-67",
+  "ctrFax": "+375 17 123-45-68",
+  "ctrEmail": "info@roga.by",
+  "ctrUnp": "100000001",
+  "ctrOkpo": "123456789",
+  "ctrBankProps": "ОАО «Приорбанк»\nIBAN: BY36PJRBS30141345678901234\nSWIFT: PJCBBY2X",
+  "ctrComment": "Надежный партнер",
+  "reputation": { "id": "1", "description": "Надежный" },
+  "ctrBlock": "0",
+  "formReadOnly": false,
+  "usrDateCreate": "01.01.2024",
+  "usrDateEdit": "12.02.2026",
+  "createUser": { "usrId": "dev_admin", "userFullName": "Администратор Системы" },
+  "editUser": { "usrId": "dev_manager", "userFullName": "Менеджер Иванов" },
+  "gridUsers": [
+    { "number": "1", "user": { "usrId": "dev_admin", "userFullName": "Администратор Системы" } }
+  ],
+  "gridAccounts": [
+    { "number": "1", "accName": "Расчетный счет (BYN)", "accAccount": "BY36PJRBS30141345678901234", "currency": { "id": "BYN", "name": "Белорусский рубль" } },
+    { "number": "2", "accName": "Расчетный счет (USD)", "accAccount": "BY36PJRBS30141345678901235", "currency": { "id": "USD", "name": "Доллар США" } },
+    { "number": "3", "accName": "Валютный счет", "accAccount": "", "currency": { "id": "", "name": "" } }
+  ],
+  "gridContactPersons": [
+    {
+      "number": "1",
+      "cpsId": "1",
+      "cpsName": "Иванов Иван",
+      "cpsPosition": "Директор",
+      "cpsOnReason": "",
+      "cpsPhone": "+375 29 111-11-11",
+      "cpsMobPhone": "",
+      "cpsFax": "",
+      "cpsEmail": "ivanov@roga.by",
+      "cpsContractComment": "",
+      "cpsFire": "0",
+      "cpsBlock": "0"
+    }
+  ],
+  "activeTab": "mainPanel",
+  "returnTo": "contractors",
+  "lookups": {
+    "countries": [
+      { "id": "BY", "name": "Беларусь" },
+      { "id": "RU", "name": "Россия" },
+      { "id": "PL", "name": "Польша" }
+    ],
+    "reputations": [
+      { "id": "1", "description": "Надежный" },
+      { "id": "2", "description": "Новый" },
+      { "id": "3", "description": "Проблемный" }
+    ],
+    "users": [
+      { "id": "dev_admin", "name": "Администратор Системы" },
+      { "id": "dev_manager", "name": "Менеджер Иванов" },
+      { "id": "dev_economist", "name": "Экономист Петров" }
+    ],
+    "currencies": [
+      { "id": "BYN", "name": "Белорусский рубль" },
+      { "id": "USD", "name": "Доллар США" },
+      { "id": "EUR", "name": "Евро" },
+      { "id": "RUB", "name": "Российский рубль" }
+    ]
+  },
+  "roleFlags": {
+    "adminRole": true,
+    "readOnlyReputation": false,
+    "readOnlyComment": false,
+    "canDelete": true,
+    "occupied": false
+  }
+}

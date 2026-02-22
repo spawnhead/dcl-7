@@ -1,0 +1,27 @@
+{
+  "defaults": {
+    "user": null,
+    "spcNumber": "",
+    "spcDate": "",
+    "spcSumm": "",
+    "spcSummNds": "",
+    "spcDeliveryCond": "",
+    "deliveryTerm": null,
+    "spcAdditionalDaysCount": "",
+    "spcDeliveryPercent": "",
+    "spcDeliverySum": "",
+    "spcDeliveryDate": "",
+    "spcAddPayCond": "",
+    "specificationPayments": [{ "percent": 100, "delayDays": 0, "currencyName": "BYN" }],
+    "spcMontage": false,
+    "spcPayAfterMontage": false,
+    "spcFaxCopy": false,
+    "spcOriginal": false,
+    "spcComment": ""
+  },
+  "lookups": {
+    "users": [{ "id": "1", "userFullName": "Admin User" }],
+    "deliveryTerms": [{ "id": "1", "name": "Предоплата 100%" }]
+  },
+  "currencyName": "BYN"
+}

@@ -1,0 +1,19 @@
+{
+  "method": "POST",
+  "url": "/api/contracts/data",
+  "body": {
+    "number": "CN-2025",
+    "contractor": {"id": "301", "name": "ALFA TRADE"},
+    "dateBegin": "01.01.2025",
+    "dateEnd": "31.12.2025",
+    "sumMin": 1000,
+    "sumMax": 50000,
+    "user": {"id": "101", "name": "ivanov"},
+    "seller": {"id": "11", "name": "ООО Продавец-1"},
+    "executed": true,
+    "notExecuted": false,
+    "oridinalAbsent": false,
+    "page": 1,
+    "pageSize": 15
+  }
+}

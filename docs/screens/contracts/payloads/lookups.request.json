@@ -1,0 +1,4 @@
+{
+  "method": "GET",
+  "url": "/api/contracts/lookups?q=al&lookup=contractors"
+}

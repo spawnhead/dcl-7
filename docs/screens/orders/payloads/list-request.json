@@ -1,0 +1,31 @@
+{
+  "note": "Example filter params for GET /api/orders. Legacy: OrdersAction.filter → select-orders (dcl_order_filter).",
+  "query": {
+    "number": "",
+    "date_begin": "01.01.2024",
+    "date_end": "31.01.2024",
+    "contractor_id": null,
+    "contractor_for_id": null,
+    "user_id": null,
+    "department_id": null,
+    "stuff_category_id": null,
+    "contract_number": null,
+    "specification_number": null,
+    "seller_for_who_id": null,
+    "sum_min": null,
+    "sum_max": null,
+    "executed": false,
+    "not_executed": false,
+    "ord_ready_for_deliv": false,
+    "ord_annul_not_show": true,
+    "state_a": false,
+    "state_3": false,
+    "state_b": false,
+    "state_exclamation": false,
+    "state_c": false,
+    "ord_num_conf": "",
+    "page": 1,
+    "pageSize": 25,
+    "order_by": " ord_date descending"
+  }
+}
