@@ -1,0 +1,23 @@
+spring:
+  application:
+    name: dcl-modern-backend
+  datasource:
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/dcl}
+    username: ${SPRING_DATASOURCE_USERNAME:dcl}
+    password: ${SPRING_DATASOURCE_PASSWORD:dcl}
+  jpa:
+    hibernate:
+      ddl-auto: validate
+    properties:
+      hibernate:
+        format_sql: true
+    open-in-view: false
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+springdoc:
+  api-docs:
+    path: /v3/api-docs
+  swagger-ui:
+    path: /swagger-ui.html

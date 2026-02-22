@@ -21,6 +21,13 @@ State:
 - Stage: development (local E2E). Production: not deployed; no production environment or release process yet.
 
 Done:
+- 2026-02-22: Contractor form hardening: 5-tab UI layout, tab-level validation markers, account rules baseline validation, backend duplicate UNP check (400) + ContractorService unit tests.
+- 2026-02-22: Contractors create/edit baseline: backend endpoints `create/open|save`, `{id}/edit/open|save`; UI routes `/references/contractors/new`, `/references/contractors/$ctrId/edit`; list actions Создать/Изменить.
+- 2026-02-22: Старт реализации Contractors list (ready spec): Flyway V4 `dcl_contractor`, backend list/block/delete + lookups/data endpoints, UI route `/references/contractors` (filters/grid/pager), WebMvc tests.
+- 2026-02-22: Добавлен Auth baseline + TanStack Router split: backend `POST /api/auth/login`, WebMvc auth tests, UI login `/login`, protected routes `/references/countries|currencies`, session/logout flow.
+- 2026-02-22: Реализован currencies vertical slice (Loop): Flyway V3 `dcl_currency`, backend CRUD `/api/currencies`, WebMvc tests, UI переключение справочников (Countries/Currencies) и CRUD валют.
+- 2026-02-22: Реализован countries vertical slice (Phase 0): Flyway V2 `dcl_country`, backend CRUD `/api/countries` (api/application/domain/infrastructure), API exception handler, WebMvc tests, UI CRUD экран "Справочник стран" + Vite proxy/strictPort.
+- 2026-02-22: Запущен bootstrap modern-проекта по docs/DEVELOPMENT_HANDOFF.md: создан каркас `modern/backend` (Spring Boot 3.5, Modulith starter, Flyway, OpenAPI, `/api/bootstrap/status`), `modern/ui` (React 19 + Vite + TS + Tailwind), `ops/docker-compose.yml` (Postgres 16), `modern/README.md` с дальнейшими шагами.
 - 2026-02-22: AGENTS.md создан по стандарту [agents.md](https://github.com/agentsmd/agents.md) для Codex: Start Here, Dev tips, Commands, Testing, Per-Screen Workflow, Definition of Done, Forbidden; ссылка на DEVELOPMENT_HANDOFF как основной PRD.
 - 2026-02-22: docs/DEVELOPMENT_HANDOFF.md переписан по принципам ERP PRD (brownfield clean-room): Goal/Personas/Scope/User flows/FR/NFR/Acceptance criteria/Evidence/Риски/Что уточнить у бизнеса; shadcn/ui + Tailwind; Evidence для каждого правила.
 - 2026-02-21: SQL Deep Dive loop complete: all `needs_sql_review` screens re-evaluated and returned to `ready` with SQL alignment sections (schema/constraints/triggers/procedures).
@@ -143,7 +150,7 @@ Done:
 - 2026-02-11: Agent-Dev TASK-0052 contractor_create Tabs validation UX: глобальные действия «Сохранить/Отмена»; validateAllTabs on Save; Badge на вкладках с ошибками; auto-switch на первую вкладку с ошибкой; sticky footer; notification.error/success. logs/dev-contractor-tabs-validation-ux-20260211-2249.md.
 
 Now:
-- SQL patch cycle DONE: `todo=0`, `needs_sql_review=0`, all screens back to `ready`.
-- Коммит и PR обновлённого PRD MVP Module 1 (после замечаний).
+- Вкладки и базовые validation-rules contractor form реализованы; остается parity persistence для nested grids (users/accounts/contact persons) и richer role checkers.
+- Runtime backend smoke всё ещё ограничен отсутствием docker/postgres.
 Next:
-- Perform targeted hardening for critical flows: replace UNKNOWN with proven runtime/HAR + DAO SQL traces (optional: highest-priority screens first).
+- Реализовать backend persistence для users/accounts/contact persons в create/edit save и покрыть integration tests на parity-правила process().
