@@ -59,9 +59,9 @@ Format - [agents.md](https://github.com/agentsmd/agents.md)
 
 - **Bash only** - no PowerShell.
 - **JDK 21** required. Set before Maven:
-  ```bash
+
   export JAVA_HOME="/c/Program Files/Eclipse Adoptium/jdk-21.0.6.7-hotspot"
-````
+
 
 * Docker must be running for Postgres and Testcontainers.
 * Fixed ports: UI 5173, Backend 8080, Postgres 5432. Do not change.
