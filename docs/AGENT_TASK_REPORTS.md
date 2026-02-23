@@ -795,3 +795,149 @@ Artifacts:
 - docs/DEVELOPMENT_HANDOFF.md
 
 Status: COMPLETED — документ готов для передачи на полную разработку.
+
+
+---
+
+## TASK-0096 - Countries vertical slice (Phase 0 bootstrap+)
+
+Agent: Senior Full-Stack Migration Engineer
+Start: 2026-02-22
+End: 2026-02-22
+
+Done:
+- Реализован первый вертикальный срез по справочнику стран: Flyway миграция `dcl_country`, backend CRUD `/api/countries`, валидация запросов, обработка ошибок API.
+- Добавлены backend тесты контроллера на list/create/update/delete и валидацию payload.
+- UI заменён с заглушки на рабочий CRUD-экран "Справочник стран" с загрузкой, созданием, редактированием и удалением.
+- Настроен Vite proxy и strictPort для фиксированных портов и работы с backend API.
+
+Files:
+- modern/backend/src/main/resources/db/migration/V2__create_country_table.sql
+- modern/backend/src/main/java/com/dcl/modern/country/**/*
+- modern/backend/src/main/java/com/dcl/modern/shared/api/*
+- modern/backend/src/test/java/com/dcl/modern/country/api/CountryControllerTest.java
+- modern/ui/src/App.tsx
+- modern/ui/src/api/countries.ts
+- modern/ui/vite.config.ts
+
+Status: IN PROGRESS (сборка/прогон ограничены registry/network 403 в текущем окружении).
+
+
+---
+
+## TASK-0097 - Currencies vertical slice (Loop continuation)
+
+Agent: Senior Full-Stack Migration Engineer
+Start: 2026-02-22
+End: 2026-02-22
+
+Done:
+- Реализован вертикальный срез для `dcl_currency`: Flyway V3, backend CRUD `/api/currencies`, DTO-валидация, WebMvc tests.
+- UI расширен до двух справочников с переключением экранов: Countries + Currencies, добавлен полноценный CRUD для валют.
+- Обновлена траектория loop: после countries/currencies следующий шаг — Auth + role/permission parity + screen routing на TanStack Router.
+
+Files:
+- modern/backend/src/main/resources/db/migration/V3__create_currency_table.sql
+- modern/backend/src/main/java/com/dcl/modern/currency/**/*
+- modern/backend/src/test/java/com/dcl/modern/currency/api/CurrencyControllerTest.java
+- modern/ui/src/api/currencies.ts
+- modern/ui/src/components/{CountriesPanel.tsx,CurrenciesPanel.tsx}
+- modern/ui/src/App.tsx
+
+Status: IN PROGRESS (tests/smoke partially blocked by external registry/network limits in environment).
+
+
+---
+
+## TASK-0098 - Auth baseline + TanStack Router split (Loop continuation)
+
+Agent: Senior Full-Stack Migration Engineer
+Start: 2026-02-22
+End: 2026-02-22
+
+Done:
+- Реализован auth baseline: backend endpoint `POST /api/auth/login` с dev-ролями ADMIN/USER и WebMvc tests.
+- Frontend переведён на TanStack Router: публичный `/login`, защищённый `/references/*` с guard через session.
+- Reference UI разделён на route-экраны `/references/countries` и `/references/currencies`, добавлен logout/session flow.
+
+Files:
+- modern/backend/src/main/java/com/dcl/modern/auth/**/*
+- modern/backend/src/test/java/com/dcl/modern/auth/api/AuthControllerTest.java
+- modern/ui/src/routes/{router.tsx,LoginPage.tsx,ReferencesLayout.tsx}
+- modern/ui/src/auth/session.ts
+- modern/ui/src/api/auth.ts
+- modern/ui/src/main.tsx
+
+Status: IN PROGRESS (full run/smoke still constrained by external registry access in environment).
+
+
+---
+
+## TASK-0099 - Contractors list baseline (Loop continuation)
+
+Agent: Senior Full-Stack Migration Engineer
+Start: 2026-02-22
+End: 2026-02-22
+
+Done:
+- Реализован baseline экрана Contractors list: backend API `/api/contractors/lookups|data|block|{id}` и миграция `dcl_contractor` (V4).
+- Добавлены server-side фильтры (name/fullName/email/unp), page/pageSize, block/delete с role-check (ADMIN only).
+- UI добавлен новый route `/references/contractors` с фильтрами, таблицей, block/delete и pager (15 rows).
+- Добавлены WebMvc tests для ContractorController и обновлён context smoke test c mock ContractorRepository.
+
+Files:
+- modern/backend/src/main/resources/db/migration/V4__create_contractor_table.sql
+- modern/backend/src/main/java/com/dcl/modern/contractor/**/*
+- modern/backend/src/test/java/com/dcl/modern/contractor/api/ContractorControllerTest.java
+- modern/backend/src/test/java/com/dcl/modern/DclModernBackendApplicationTests.java
+- modern/ui/src/api/contractors.ts
+- modern/ui/src/components/ContractorsPanel.tsx
+- modern/ui/src/routes/{router.tsx,ReferencesLayout.tsx}
+
+Status: IN PROGRESS (runtime backend requires DB instance; docker binary unavailable in environment).
+
+
+---
+
+## TASK-0100 - Contractors create/edit baseline (Loop continuation)
+
+Agent: Senior Full-Stack Migration Engineer
+Start: 2026-02-22
+End: 2026-02-22
+
+Done:
+- Расширен backend contractors API: `create/open`, `create/save`, `{id}/edit/open`, `{id}/edit/save` c DTO формой и save response.
+- Добавлен UI экран формы контрагента (create/edit) и маршруты `/references/contractors/new`, `/references/contractors/$ctrId/edit`.
+- Из списка контрагентов добавлены действия «Создать» и «Изменить» с переходами на форму.
+- Обновлены WebMvc tests ContractorController под новые endpoints.
+
+Files:
+- modern/backend/src/main/java/com/dcl/modern/contractor/{api,application}/*
+- modern/backend/src/test/java/com/dcl/modern/contractor/api/ContractorControllerTest.java
+- modern/ui/src/components/{ContractorsPanel.tsx,ContractorFormPage.tsx}
+- modern/ui/src/api/contractors.ts
+- modern/ui/src/routes/router.tsx
+
+Status: IN PROGRESS (runtime API smoke still needs running backend + postgres in environment).
+
+
+---
+
+## TASK-0101 - Contractor form tabs + UNP duplicate hardening
+
+Agent: Senior Full-Stack Migration Engineer
+Start: 2026-02-22
+End: 2026-02-22
+
+Done:
+- Усилен backend contractors create/edit: добавлена проверка duplicate UNP (400, legacy-like message) на create/update.
+- Добавлен unit test `ContractorServiceTest` для duplicate UNP и happy-path save.
+- UI ContractorFormPage переведен на tab-layout (5 вкладок) с local validation и авто-переходом на первую вкладку с ошибкой.
+- Добавлена baseline-валидация account rules (default/custom rows), визуальные tab-error markers, computed address preview.
+
+Files:
+- modern/backend/src/main/java/com/dcl/modern/contractor/{application,infrastructure}/**/*
+- modern/backend/src/test/java/com/dcl/modern/contractor/application/ContractorServiceTest.java
+- modern/ui/src/components/ContractorFormPage.tsx
+
+Status: IN PROGRESS (full runtime parity still needs backend+db running and nested grids persistence).

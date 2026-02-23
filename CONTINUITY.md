@@ -21,6 +21,19 @@ State:
 - Stage: development (local E2E). Production: not deployed; no production environment or release process yet.
 
 Done:
+- 2026-02-23: Contractors role matrix baseline expanded: added SUPERVISOR/EDITOR permissions in backend (`permissionsForRole`), controller tests for partial-role allow/forbid cases, and auth demo accounts for role smoke (`supervisor`, `editor`).
+- 2026-02-23: Contractors form access guard on UI: before create/edit form load, frontend checks `/contractors/lookups` permissions (canCreate/canEdit) and shows explicit access-denied state with return-to-list action instead of blind form load attempts.
+- 2026-02-22: Contractors permission guardrails refactor: controller authorization now consumes shared service role-permissions (`permissionsForRole`) for create/edit/block/delete, avoiding duplicated role logic; service/controller tests updated for permission policy checks.
+- 2026-02-22: Contractors backend permission guardrails: admin role now required for create/edit open/save endpoints (not only block/delete); controller tests expanded with forbidden USER cases; contractor form API calls now pass X-Role from session.
+- 2026-02-22: Contractors permissions parity baseline: backend lookups now returns explicit `permissions` (canCreate/canEdit/canBlock/canDelete) by role; contractors list UI consumes permissions from `/lookups` and disables Create/Edit/Block/Delete actions accordingly.
+- 2026-02-22: Contractors nested grids persistence parity: Flyway V5 (dcl_account/dcl_contact_person/dcl_contractor_user), backend child entities/repositories + create/edit sync/read/delete, DTO расширены users/accounts/contactPersons; UI payload/state переведены на typed nested rows; service/controller tests покрывают validation и persistence flow.
+- 2026-02-22: Contractor form hardening: 5-tab UI layout, tab-level validation markers, account rules baseline validation, backend duplicate UNP check (400) + ContractorService unit tests.
+- 2026-02-22: Contractors create/edit baseline: backend endpoints `create/open|save`, `{id}/edit/open|save`; UI routes `/references/contractors/new`, `/references/contractors/$ctrId/edit`; list actions Создать/Изменить.
+- 2026-02-22: Старт реализации Contractors list (ready spec): Flyway V4 `dcl_contractor`, backend list/block/delete + lookups/data endpoints, UI route `/references/contractors` (filters/grid/pager), WebMvc tests.
+- 2026-02-22: Добавлен Auth baseline + TanStack Router split: backend `POST /api/auth/login`, WebMvc auth tests, UI login `/login`, protected routes `/references/countries|currencies`, session/logout flow.
+- 2026-02-22: Реализован currencies vertical slice (Loop): Flyway V3 `dcl_currency`, backend CRUD `/api/currencies`, WebMvc tests, UI переключение справочников (Countries/Currencies) и CRUD валют.
+- 2026-02-22: Реализован countries vertical slice (Phase 0): Flyway V2 `dcl_country`, backend CRUD `/api/countries` (api/application/domain/infrastructure), API exception handler, WebMvc tests, UI CRUD экран "Справочник стран" + Vite proxy/strictPort.
+- 2026-02-22: Запущен bootstrap modern-проекта по docs/DEVELOPMENT_HANDOFF.md: создан каркас `modern/backend` (Spring Boot 3.5, Modulith starter, Flyway, OpenAPI, `/api/bootstrap/status`), `modern/ui` (React 19 + Vite + TS + Tailwind), `ops/docker-compose.yml` (Postgres 16), `modern/README.md` с дальнейшими шагами.
 - 2026-02-22: AGENTS.md создан по стандарту [agents.md](https://github.com/agentsmd/agents.md) для Codex: Start Here, Dev tips, Commands, Testing, Per-Screen Workflow, Definition of Done, Forbidden; ссылка на DEVELOPMENT_HANDOFF как основной PRD.
 - 2026-02-22: docs/DEVELOPMENT_HANDOFF.md переписан по принципам ERP PRD (brownfield clean-room): Goal/Personas/Scope/User flows/FR/NFR/Acceptance criteria/Evidence/Риски/Что уточнить у бизнеса; shadcn/ui + Tailwind; Evidence для каждого правила.
 - 2026-02-21: SQL Deep Dive loop complete: all `needs_sql_review` screens re-evaluated and returned to `ready` with SQL alignment sections (schema/constraints/triggers/procedures).
@@ -143,7 +156,8 @@ Done:
 - 2026-02-11: Agent-Dev TASK-0052 contractor_create Tabs validation UX: глобальные действия «Сохранить/Отмена»; validateAllTabs on Save; Badge на вкладках с ошибками; auto-switch на первую вкладку с ошибкой; sticky footer; notification.error/success. logs/dev-contractor-tabs-validation-ux-20260211-2249.md.
 
 Now:
-- SQL patch cycle DONE: `todo=0`, `needs_sql_review=0`, all screens back to `ready`.
-- Коммит и PR обновлённого PRD MVP Module 1 (после замечаний).
+- Role matrix contractors расширена от admin/user к partial roles (SUPERVISOR/EDITOR) и покрыта backend тестами.
+- Runtime backend smoke всё ещё ограничен отсутствием docker/postgres.
 Next:
-- Perform targeted hardening for critical flows: replace UNKNOWN with proven runtime/HAR + DAO SQL traces (optional: highest-priority screens first).
+- Сверить новую role-matrix policy contractors с legacy evidence и откорректировать granular права (особенно delete/block).
+- Прогнать full backend suite с Docker/Testcontainers и зафиксировать smoke-артефакты.
