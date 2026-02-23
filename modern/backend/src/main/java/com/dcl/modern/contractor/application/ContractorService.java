@@ -52,7 +52,7 @@ public class ContractorService {
 
   @Transactional(readOnly = true)
   public ContractorLookupsResponse lookups(String role) {
-    var permissions = permissions(role);
+    var permissions = permissionsForRole(role);
     return new ContractorLookupsResponse(
         new FilterDefaults("", "", "", "", "", "", null, null),
         new Lookups(
@@ -264,7 +264,7 @@ public class ContractorService {
   }
 
 
-  private ContractorPermissions permissions(String role) {
+  public ContractorPermissions permissionsForRole(String role) {
     var isAdmin = "ADMIN".equalsIgnoreCase(role);
     return new ContractorPermissions(isAdmin, isAdmin, isAdmin, isAdmin);
   }

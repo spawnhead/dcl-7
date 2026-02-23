@@ -48,6 +48,18 @@ class ContractorServiceTest {
     assertEquals(77, result.ctrId());
   }
 
+
+  @Test
+  void shouldReturnPermissionsByRole() {
+    var admin = service.permissionsForRole("ADMIN");
+    var user = service.permissionsForRole("USER");
+
+    assertEquals(true, admin.canCreate());
+    assertEquals(true, admin.canDelete());
+    assertEquals(false, user.canCreate());
+    assertEquals(false, user.canEdit());
+  }
+
   private ContractorSaveRequest baseRequest(String unp) {
     return new ContractorSaveRequest(
         "A",

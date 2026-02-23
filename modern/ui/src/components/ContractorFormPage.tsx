@@ -5,6 +5,7 @@ import { loadSession } from '../auth/session'
 import {
   openContractorCreate,
   openContractorEdit,
+  fetchContractorLookups,
   saveContractorCreate,
   saveContractorEdit,
   type ContractorAccountRow,
@@ -71,18 +72,34 @@ export function ContractorFormPage() {
   const [activeTab, setActiveTab] = useState<TabKey>('mainPanel')
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
+  const [canAccessForm, setCanAccessForm] = useState(false)
+  const [isLoading, setIsLoading] = useState(true)
   const [tabErrors, setTabErrors] = useState<Partial<Record<TabKey, string>>>({})
 
   useEffect(() => {
     const load = async () => {
+      setIsLoading(true)
       try {
+        const lookups = await fetchContractorLookups(role)
+        const allowed = isEdit ? lookups.permissions.canEdit : lookups.permissions.canCreate
+        if (!allowed) {
+          setCanAccessForm(false)
+          setError('Недостаточно прав для открытия формы контрагента')
+          setIsLoading(false)
+          return
+        }
+
         const data = isEdit
           ? await openContractorEdit(String(ctrId), role)
           : await openContractorCreate('contractors', role)
         setForm({ ...defaultForm, ...data })
         setActiveTab((data.activeTab as TabKey) ?? 'mainPanel')
+        setCanAccessForm(true)
       } catch {
+        setCanAccessForm(false)
         setError('Не удалось загрузить форму контрагента')
+      } finally {
+        setIsLoading(false)
       }
     }
     void load()
@@ -192,6 +209,29 @@ export function ContractorFormPage() {
     } catch {
       setError('Ошибка сохранения контрагента (проверьте права доступа)')
     }
+  }
+
+
+  if (isLoading) {
+    return <section className="rounded border p-4 text-slate-600">Загрузка формы контрагента...</section>
+  }
+
+  if (!canAccessForm) {
+    return (
+      <section>
+        <h2 className="mb-4 text-2xl font-semibold">Доступ к форме контрагента</h2>
+        {error && <div className="mt-3 rounded bg-red-100 p-2 text-red-700">{error}</div>}
+        <div className="mt-4">
+          <button
+            type="button"
+            className="rounded border px-4 py-2"
+            onClick={() => void navigate({ to: '/references/contractors' })}
+          >
+            Вернуться к списку
+          </button>
+        </div>
+      </section>
+    )
   }
 
   return (

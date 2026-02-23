@@ -21,6 +21,7 @@ import com.dcl.modern.contractor.api.ContractorDtos.ContractorPermissions;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorRow;
 import com.dcl.modern.contractor.api.ContractorDtos.LookupValue;
 import com.dcl.modern.contractor.application.ContractorService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -36,6 +37,14 @@ class ContractorControllerTest {
   @Autowired private MockMvc mockMvc;
 
   @MockBean private ContractorService service;
+
+  @BeforeEach
+  void setUpPermissions() {
+    org.mockito.Mockito.when(service.permissionsForRole("ADMIN"))
+        .thenReturn(new ContractorPermissions(true, true, true, true));
+    org.mockito.Mockito.when(service.permissionsForRole("USER"))
+        .thenReturn(new ContractorPermissions(false, false, false, false));
+  }
 
   @Test
   void shouldReturnLookups() throws Exception {

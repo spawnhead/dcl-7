@@ -49,7 +49,7 @@ public class ContractorController {
   public ContractorFormResponse openCreate(
       @RequestParam(name = "returnTo", required = false) String returnTo,
       @RequestHeader(name = "X-Role", defaultValue = "USER") String role) {
-    ensureAdmin(role);
+    ensureAllowed(service.permissionsForRole(role).canCreate(), "Create contractor");
     return service.openCreate(returnTo);
   }
 
@@ -57,7 +57,7 @@ public class ContractorController {
   public ContractorSaveResponse create(
       @RequestBody @Valid ContractorSaveRequest request,
       @RequestHeader(name = "X-Role", defaultValue = "USER") String role) {
-    ensureAdmin(role);
+    ensureAllowed(service.permissionsForRole(role).canCreate(), "Create contractor");
     return service.create(request);
   }
 
@@ -67,7 +67,7 @@ public class ContractorController {
       @RequestParam(name = "returnTo", required = false) String returnTo,
       @RequestParam(name = "tab", required = false) String tab,
       @RequestHeader(name = "X-Role", defaultValue = "USER") String role) {
-    ensureAdmin(role);
+    ensureAllowed(service.permissionsForRole(role).canEdit(), "Edit contractor");
     return service.openEdit(ctrId, returnTo, tab);
   }
 
@@ -76,7 +76,7 @@ public class ContractorController {
       @PathVariable Integer ctrId,
       @RequestBody @Valid ContractorSaveRequest request,
       @RequestHeader(name = "X-Role", defaultValue = "USER") String role) {
-    ensureAdmin(role);
+    ensureAllowed(service.permissionsForRole(role).canEdit(), "Edit contractor");
     return service.update(ctrId, request);
   }
 
@@ -85,7 +85,7 @@ public class ContractorController {
   public void block(
       @RequestBody @Valid ContractorBlockRequest request,
       @RequestHeader(name = "X-Role", defaultValue = "USER") String role) {
-    ensureAdmin(role);
+    ensureAllowed(service.permissionsForRole(role).canBlock(), "Block contractor");
     service.block(request);
   }
 
@@ -94,17 +94,13 @@ public class ContractorController {
   public void delete(
       @PathVariable Integer ctrId,
       @RequestHeader(name = "X-Role", defaultValue = "USER") String role) {
-    ensureAdmin(role);
+    ensureAllowed(service.permissionsForRole(role).canDelete(), "Delete contractor");
     service.delete(ctrId);
   }
 
-  private void ensureAdmin(String role) {
-    if (!isAdmin(role)) {
-      throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Admin role required");
+  private void ensureAllowed(boolean allowed, String action) {
+    if (!allowed) {
+      throw new ResponseStatusException(HttpStatus.FORBIDDEN, action + " requires proper role");
     }
-  }
-
-  private boolean isAdmin(String role) {
-    return "ADMIN".equalsIgnoreCase(role);
   }
 }
