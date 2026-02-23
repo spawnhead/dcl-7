@@ -52,10 +52,23 @@ class ContractorServiceTest {
   @Test
   void shouldReturnPermissionsByRole() {
     var admin = service.permissionsForRole("ADMIN");
+    var supervisor = service.permissionsForRole("SUPERVISOR");
+    var editor = service.permissionsForRole("EDITOR");
     var user = service.permissionsForRole("USER");
 
     assertEquals(true, admin.canCreate());
     assertEquals(true, admin.canDelete());
+
+    assertEquals(true, supervisor.canCreate());
+    assertEquals(true, supervisor.canEdit());
+    assertEquals(true, supervisor.canBlock());
+    assertEquals(false, supervisor.canDelete());
+
+    assertEquals(false, editor.canCreate());
+    assertEquals(true, editor.canEdit());
+    assertEquals(false, editor.canBlock());
+    assertEquals(false, editor.canDelete());
+
     assertEquals(false, user.canCreate());
     assertEquals(false, user.canEdit());
   }

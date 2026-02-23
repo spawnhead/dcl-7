@@ -44,6 +44,10 @@ class ContractorControllerTest {
         .thenReturn(new ContractorPermissions(true, true, true, true));
     org.mockito.Mockito.when(service.permissionsForRole("USER"))
         .thenReturn(new ContractorPermissions(false, false, false, false));
+    org.mockito.Mockito.when(service.permissionsForRole("SUPERVISOR"))
+        .thenReturn(new ContractorPermissions(true, true, true, false));
+    org.mockito.Mockito.when(service.permissionsForRole("EDITOR"))
+        .thenReturn(new ContractorPermissions(false, true, false, false));
   }
 
   @Test
@@ -189,6 +193,60 @@ class ContractorControllerTest {
             put("/api/contractors/5/edit/save")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"ctrName\":\"A\",\"ctrFullName\":\"AA\",\"countryId\":1,\"reputationId\":1}"))
+        .andExpect(status().isForbidden());
+  }
+
+
+  @Test
+  void shouldAllowEditOpenForEditorRole() throws Exception {
+    org.mockito.Mockito.when(service.openEdit(eq(1), eq(null), eq(null)))
+        .thenReturn(
+            new ContractorFormResponse(
+                1,
+                "contractors",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                "",
+                1,
+                1,
+                1,
+                0,
+                "mainPanel",
+                false,
+                java.util.List.of(),
+                java.util.List.of(),
+                java.util.List.of()));
+
+    mockMvc
+        .perform(get("/api/contractors/1/edit/open").header("X-Role", "EDITOR"))
+        .andExpect(status().isOk());
+  }
+
+  @Test
+  void shouldAllowBlockForSupervisorRole() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/contractors/block")
+                .header("X-Role", "SUPERVISOR")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"ctrId\":1,\"block\":1}"))
+        .andExpect(status().isNoContent());
+  }
+
+  @Test
+  void shouldForbidDeleteForSupervisorRole() throws Exception {
+    mockMvc
+        .perform(delete("/api/contractors/1").header("X-Role", "SUPERVISOR"))
         .andExpect(status().isForbidden());
   }
 

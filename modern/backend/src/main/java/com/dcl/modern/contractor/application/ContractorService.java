@@ -265,8 +265,16 @@ public class ContractorService {
 
 
   public ContractorPermissions permissionsForRole(String role) {
-    var isAdmin = "ADMIN".equalsIgnoreCase(role);
-    return new ContractorPermissions(isAdmin, isAdmin, isAdmin, isAdmin);
+    if ("ADMIN".equalsIgnoreCase(role)) {
+      return new ContractorPermissions(true, true, true, true);
+    }
+    if ("SUPERVISOR".equalsIgnoreCase(role)) {
+      return new ContractorPermissions(true, true, true, false);
+    }
+    if ("EDITOR".equalsIgnoreCase(role)) {
+      return new ContractorPermissions(false, true, false, false);
+    }
+    return new ContractorPermissions(false, false, false, false);
   }
 
   private void validateUnpForCreate(String unp) {

@@ -19,6 +19,12 @@ public class AuthService {
     if ("user".equalsIgnoreCase(username) && "user".equals(password)) {
       return new LoginResponse("dev-token-user", 2, "user", "USER");
     }
+    if ("supervisor".equalsIgnoreCase(username) && "supervisor".equals(password)) {
+      return new LoginResponse("dev-token-supervisor", 3, "supervisor", "SUPERVISOR");
+    }
+    if ("editor".equalsIgnoreCase(username) && "editor".equals(password)) {
+      return new LoginResponse("dev-token-editor", 4, "editor", "EDITOR");
+    }
 
     throw new NotFoundException("Invalid credentials");
   }

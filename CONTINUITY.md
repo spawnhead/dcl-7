@@ -21,6 +21,7 @@ State:
 - Stage: development (local E2E). Production: not deployed; no production environment or release process yet.
 
 Done:
+- 2026-02-23: Contractors role matrix baseline expanded: added SUPERVISOR/EDITOR permissions in backend (`permissionsForRole`), controller tests for partial-role allow/forbid cases, and auth demo accounts for role smoke (`supervisor`, `editor`).
 - 2026-02-23: Contractors form access guard on UI: before create/edit form load, frontend checks `/contractors/lookups` permissions (canCreate/canEdit) and shows explicit access-denied state with return-to-list action instead of blind form load attempts.
 - 2026-02-22: Contractors permission guardrails refactor: controller authorization now consumes shared service role-permissions (`permissionsForRole`) for create/edit/block/delete, avoiding duplicated role logic; service/controller tests updated for permission policy checks.
 - 2026-02-22: Contractors backend permission guardrails: admin role now required for create/edit open/save endpoints (not only block/delete); controller tests expanded with forbidden USER cases; contractor form API calls now pass X-Role from session.
@@ -155,8 +156,8 @@ Done:
 - 2026-02-11: Agent-Dev TASK-0052 contractor_create Tabs validation UX: глобальные действия «Сохранить/Отмена»; validateAllTabs on Save; Badge на вкладках с ошибками; auto-switch на первую вкладку с ошибкой; sticky footer; notification.error/success. logs/dev-contractor-tabs-validation-ux-20260211-2249.md.
 
 Now:
-- Contractors form UI теперь делает pre-check permissions и корректно блокирует доступ к create/edit при отсутствии прав.
+- Role matrix contractors расширена от admin/user к partial roles (SUPERVISOR/EDITOR) и покрыта backend тестами.
 - Runtime backend smoke всё ещё ограничен отсутствием docker/postgres.
 Next:
-- Сверить policy-матрицу ролей contractors с legacy evidence (не только admin/user baseline) и добавить granular permissions.
+- Сверить новую role-matrix policy contractors с legacy evidence и откорректировать granular права (особенно delete/block).
 - Прогнать full backend suite с Docker/Testcontainers и зафиксировать smoke-артефакты.

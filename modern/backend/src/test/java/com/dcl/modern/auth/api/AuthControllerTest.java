@@ -29,6 +29,29 @@ class AuthControllerTest {
   }
 
   @Test
+  void shouldLoginSupervisor() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"username\":\"supervisor\",\"password\":\"supervisor\"}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.role").value("SUPERVISOR"));
+  }
+
+  @Test
+  void shouldLoginEditor() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"username\":\"editor\",\"password\":\"editor\"}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.role").value("EDITOR"));
+  }
+
+
+  @Test
   void shouldRejectInvalidLogin() throws Exception {
     mockMvc
         .perform(

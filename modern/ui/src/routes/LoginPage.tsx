@@ -30,7 +30,7 @@ export function LoginPage() {
         <button type="submit" className="w-full rounded bg-slate-900 px-4 py-2 text-white">Войти</button>
       </form>
       {error && <div className="mt-3 rounded bg-red-100 p-2 text-red-700">{error}</div>}
-      <p className="mt-4 text-xs text-slate-500">Demo credentials: admin/admin, user/user</p>
+      <p className="mt-4 text-xs text-slate-500">Demo credentials: admin/admin, supervisor/supervisor, editor/editor, user/user</p>
     </main>
   )
 }
