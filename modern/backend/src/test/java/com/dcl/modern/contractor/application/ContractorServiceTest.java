@@ -61,7 +61,7 @@ class ContractorServiceTest {
 
     assertEquals(true, supervisor.canCreate());
     assertEquals(true, supervisor.canEdit());
-    assertEquals(true, supervisor.canBlock());
+    assertEquals(false, supervisor.canBlock());
     assertEquals(false, supervisor.canDelete());
 
     assertEquals(false, editor.canCreate());
@@ -71,6 +71,30 @@ class ContractorServiceTest {
 
     assertEquals(false, user.canCreate());
     assertEquals(false, user.canEdit());
+  }
+
+
+  @Test
+  void shouldNormalizeRoleInputBeforePermissionsCheck() {
+    var paddedSupervisor = service.permissionsForRole("  supervisor  ");
+    var nullRole = service.permissionsForRole(null);
+
+    assertEquals(true, paddedSupervisor.canCreate());
+    assertEquals(false, paddedSupervisor.canBlock());
+    assertEquals(false, paddedSupervisor.canDelete());
+
+    assertEquals(false, nullRole.canCreate());
+    assertEquals(false, nullRole.canEdit());
+  }
+
+
+  @Test
+  void shouldHandleMixedCaseRoleInput() {
+    var mixedCaseEditor = service.permissionsForRole("eDiToR");
+
+    assertEquals(true, mixedCaseEditor.canEdit());
+    assertEquals(false, mixedCaseEditor.canCreate());
+    assertEquals(false, mixedCaseEditor.canDelete());
   }
 
   private ContractorSaveRequest baseRequest(String unp) {

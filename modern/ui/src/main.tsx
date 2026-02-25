@@ -1,3 +1,4 @@
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { createRoot } from 'react-dom/client'
 
 import { AppRouter } from './routes/router'
@@ -8,4 +9,10 @@ if (!root) {
   throw new Error('Root element not found')
 }
 
-createRoot(root).render(<AppRouter />)
+const queryClient = new QueryClient()
+
+createRoot(root).render(
+  <QueryClientProvider client={queryClient}>
+    <AppRouter />
+  </QueryClientProvider>
+)

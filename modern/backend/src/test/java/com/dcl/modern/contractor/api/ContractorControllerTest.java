@@ -1,6 +1,7 @@
 package com.dcl.modern.contractor.api;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -21,6 +22,7 @@ import com.dcl.modern.contractor.api.ContractorDtos.ContractorPermissions;
 import com.dcl.modern.contractor.api.ContractorDtos.ContractorRow;
 import com.dcl.modern.contractor.api.ContractorDtos.LookupValue;
 import com.dcl.modern.contractor.application.ContractorService;
+import java.util.Locale;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,14 +42,25 @@ class ContractorControllerTest {
 
   @BeforeEach
   void setUpPermissions() {
-    org.mockito.Mockito.when(service.permissionsForRole("ADMIN"))
-        .thenReturn(new ContractorPermissions(true, true, true, true));
-    org.mockito.Mockito.when(service.permissionsForRole("USER"))
-        .thenReturn(new ContractorPermissions(false, false, false, false));
-    org.mockito.Mockito.when(service.permissionsForRole("SUPERVISOR"))
-        .thenReturn(new ContractorPermissions(true, true, true, false));
-    org.mockito.Mockito.when(service.permissionsForRole("EDITOR"))
-        .thenReturn(new ContractorPermissions(false, true, false, false));
+    org.mockito.Mockito.when(service.permissionsForRole(anyString()))
+        .thenAnswer(
+            invocation -> {
+              var role = invocation.getArgument(0, String.class);
+              if (role == null) {
+                return new ContractorPermissions(false, false, false, false);
+              }
+              return permissionsForRole(role.trim().toUpperCase(Locale.ROOT));
+            });
+  }
+
+
+  private ContractorPermissions permissionsForRole(String role) {
+    return switch (role) {
+      case "ADMIN" -> new ContractorPermissions(true, true, true, true);
+      case "SUPERVISOR" -> new ContractorPermissions(true, true, false, false);
+      case "EDITOR" -> new ContractorPermissions(false, true, false, false);
+      default -> new ContractorPermissions(false, false, false, false);
+    };
   }
 
   @Test
@@ -66,6 +79,58 @@ class ContractorControllerTest {
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.permissions.canCreate").value(true))
         .andExpect(jsonPath("$.permissions.canDelete").value(true));
+  }
+
+
+
+  @Test
+  void shouldReturnSupervisorLookupsPermissions() throws Exception {
+    org.mockito.Mockito.when(service.lookups("SUPERVISOR"))
+        .thenReturn(
+            new ContractorLookupsResponse(
+                new FilterDefaults("", "", "", "", "", "", null, null),
+                new Lookups(java.util.List.of(), java.util.List.of()),
+                new ContractorPermissions(true, true, false, false)));
+
+    mockMvc
+        .perform(get("/api/contractors/lookups").header("X-Role", "SUPERVISOR"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.permissions.canCreate").value(true))
+        .andExpect(jsonPath("$.permissions.canBlock").value(false))
+        .andExpect(jsonPath("$.permissions.canDelete").value(false));
+  }
+
+  @Test
+  void shouldReturnEditorLookupsPermissions() throws Exception {
+    org.mockito.Mockito.when(service.lookups("EDITOR"))
+        .thenReturn(
+            new ContractorLookupsResponse(
+                new FilterDefaults("", "", "", "", "", "", null, null),
+                new Lookups(java.util.List.of(), java.util.List.of()),
+                new ContractorPermissions(false, true, false, false)));
+
+    mockMvc
+        .perform(get("/api/contractors/lookups").header("X-Role", "EDITOR"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.permissions.canEdit").value(true))
+        .andExpect(jsonPath("$.permissions.canCreate").value(false));
+  }
+
+
+  @Test
+  void shouldReturnEditorLookupsPermissionsForLowercaseHeader() throws Exception {
+    org.mockito.Mockito.when(service.lookups("editor"))
+        .thenReturn(
+            new ContractorLookupsResponse(
+                new FilterDefaults("", "", "", "", "", "", null, null),
+                new Lookups(java.util.List.of(), java.util.List.of()),
+                new ContractorPermissions(false, true, false, false)));
+
+    mockMvc
+        .perform(get("/api/contractors/lookups").header("X-Role", "editor"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.permissions.canEdit").value(true))
+        .andExpect(jsonPath("$.permissions.canCreate").value(false));
   }
 
   @Test
@@ -233,14 +298,14 @@ class ContractorControllerTest {
   }
 
   @Test
-  void shouldAllowBlockForSupervisorRole() throws Exception {
+  void shouldForbidBlockForSupervisorRole() throws Exception {
     mockMvc
         .perform(
             post("/api/contractors/block")
                 .header("X-Role", "SUPERVISOR")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content("{\"ctrId\":1,\"block\":1}"))
-        .andExpect(status().isNoContent());
+        .andExpect(status().isForbidden());
   }
 
   @Test
@@ -250,6 +315,111 @@ class ContractorControllerTest {
         .andExpect(status().isForbidden());
   }
 
+
+  @Test
+  void shouldAllowCreateSaveForSupervisorRole() throws Exception {
+    org.mockito.Mockito.when(service.create(any(ContractorSaveRequest.class)))
+        .thenReturn(
+            new ContractorSaveResponse(11, "contractors", "/references/contractors", "Контрагент успешно сохранен"));
+
+    mockMvc
+        .perform(
+            post("/api/contractors/create/save")
+                .header("X-Role", "SUPERVISOR")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"ctrName\":\"A\",\"ctrFullName\":\"AA\",\"countryId\":1,\"reputationId\":1}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.ctrId").value(11));
+  }
+
+  @Test
+  void shouldForbidCreateSaveForEditorRole() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/contractors/create/save")
+                .header("X-Role", "EDITOR")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"ctrName\":\"A\",\"ctrFullName\":\"AA\",\"countryId\":1,\"reputationId\":1}"))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void shouldAllowEditSaveForEditorRole() throws Exception {
+    org.mockito.Mockito.when(service.update(eq(6), any(ContractorSaveRequest.class)))
+        .thenReturn(
+            new ContractorSaveResponse(6, "contractors", "/references/contractors", "Контрагент успешно сохранен"));
+
+    mockMvc
+        .perform(
+            put("/api/contractors/6/edit/save")
+                .header("X-Role", "EDITOR")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"ctrName\":\"A\",\"ctrFullName\":\"AA\",\"countryId\":1,\"reputationId\":1}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.ctrId").value(6));
+  }
+
+  @Test
+  void shouldForbidBlockForEditorRole() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/contractors/block")
+                .header("X-Role", "EDITOR")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"ctrId\":1,\"block\":1}"))
+        .andExpect(status().isForbidden());
+  }
+
+
+  @Test
+  void shouldAllowCreateSaveForLowercaseSupervisorRole() throws Exception {
+    org.mockito.Mockito.when(service.create(any(ContractorSaveRequest.class)))
+        .thenReturn(
+            new ContractorSaveResponse(12, "contractors", "/references/contractors", "Контрагент успешно сохранен"));
+
+    mockMvc
+        .perform(
+            post("/api/contractors/create/save")
+                .header("X-Role", "supervisor")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"ctrName\":\"A\",\"ctrFullName\":\"AA\",\"countryId\":1,\"reputationId\":1}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.ctrId").value(12));
+  }
+
+  @Test
+  void shouldAllowEditSaveForMixedCaseEditorRole() throws Exception {
+    org.mockito.Mockito.when(service.update(eq(7), any(ContractorSaveRequest.class)))
+        .thenReturn(
+            new ContractorSaveResponse(7, "contractors", "/references/contractors", "Контрагент успешно сохранен"));
+
+    mockMvc
+        .perform(
+            put("/api/contractors/7/edit/save")
+                .header("X-Role", "eDiToR")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"ctrName\":\"A\",\"ctrFullName\":\"AA\",\"countryId\":1,\"reputationId\":1}"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$.ctrId").value(7));
+  }
+
+  @Test
+  void shouldForbidBlockForLowercaseEditorRole() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/contractors/block")
+                .header("X-Role", "editor")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"ctrId\":1,\"block\":1}"))
+        .andExpect(status().isForbidden());
+  }
+
+  @Test
+  void shouldForbidDeleteForLowercaseSupervisorRole() throws Exception {
+    mockMvc
+        .perform(delete("/api/contractors/1").header("X-Role", "supervisor"))
+        .andExpect(status().isForbidden());
+  }
 
   @Test
   void shouldAllowDeleteForAdmin() throws Exception {

@@ -265,13 +265,14 @@ public class ContractorService {
 
 
   public ContractorPermissions permissionsForRole(String role) {
-    if ("ADMIN".equalsIgnoreCase(role)) {
+    var normalized = role == null ? "" : role.trim();
+    if ("ADMIN".equalsIgnoreCase(normalized)) {
       return new ContractorPermissions(true, true, true, true);
     }
-    if ("SUPERVISOR".equalsIgnoreCase(role)) {
-      return new ContractorPermissions(true, true, true, false);
+    if ("SUPERVISOR".equalsIgnoreCase(normalized)) {
+      return new ContractorPermissions(true, true, false, false);
     }
-    if ("EDITOR".equalsIgnoreCase(role)) {
+    if ("EDITOR".equalsIgnoreCase(normalized)) {
       return new ContractorPermissions(false, true, false, false);
     }
     return new ContractorPermissions(false, false, false, false);

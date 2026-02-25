@@ -21,6 +21,14 @@ State:
 - Stage: development (local E2E). Production: not deployed; no production environment or release process yet.
 
 Done:
+- 2026-02-25: Contractors controller case-insensitive guardrail coverage expanded: WebMvc now normalizes mocked role policy via `anyString` + uppercase mapping and adds lowercase/mixed-case authorization tests for create/edit/block/delete endpoints.
+- 2026-02-25: UI switched to Dashboard Shell baseline inspired by shadcn-admin: sidebar/topbar references layout, zustand layout store, React Query provider bootstrap, and frontend dependencies aligned with `docs/TECH_STACK.md` package set for admin-shell migration path.
+- 2026-02-25: Contractors role-matrix parity refinement: SUPERVISOR block permission removed (admin-only block/unblock aligned with legacy `blockChecker`), service/controller tests updated accordingly.
+- 2026-02-23: Backend context smoke stabilized: `DclModernBackendApplicationTests` now mocks contractor child repositories (`ContractorUserRepository`, `AccountRepository`, `ContactPersonRepository`) so full Spring context test does not fail on missing beans after contractors module expansion.
+- 2026-02-23: Contractors role normalization coverage expanded: added service test for mixed-case role values and controller lookups test for lowercase `X-Role` to lock case-insensitive behavior end-to-end.
+- 2026-02-23: Contractor role-permission hardening: `permissionsForRole` now normalizes role input (`trim` + null-safe) to avoid accidental denies from spaced/cased headers; service tests cover normalized and null role inputs.
+- 2026-02-23: Contractors endpoint permission matrix coverage extended in WebMvc: added allow/forbid checks for SUPERVISOR/EDITOR on create/save, edit/save, block endpoints to lock partial-role behavior beyond lookups payload only.
+- 2026-02-23: Contractors lookups permissions coverage expanded: WebMvc tests now assert lookups permission payloads for SUPERVISOR and EDITOR roles to keep UI gating contract stable for partial-role matrix.
 - 2026-02-23: Contractors role matrix baseline expanded: added SUPERVISOR/EDITOR permissions in backend (`permissionsForRole`), controller tests for partial-role allow/forbid cases, and auth demo accounts for role smoke (`supervisor`, `editor`).
 - 2026-02-23: Contractors form access guard on UI: before create/edit form load, frontend checks `/contractors/lookups` permissions (canCreate/canEdit) and shows explicit access-denied state with return-to-list action instead of blind form load attempts.
 - 2026-02-22: Contractors permission guardrails refactor: controller authorization now consumes shared service role-permissions (`permissionsForRole`) for create/edit/block/delete, avoiding duplicated role logic; service/controller tests updated for permission policy checks.
@@ -156,7 +164,7 @@ Done:
 - 2026-02-11: Agent-Dev TASK-0052 contractor_create Tabs validation UX: глобальные действия «Сохранить/Отмена»; validateAllTabs on Save; Badge на вкладках с ошибками; auto-switch на первую вкладку с ошибкой; sticky footer; notification.error/success. logs/dev-contractor-tabs-validation-ux-20260211-2249.md.
 
 Now:
-- Role matrix contractors расширена от admin/user к partial roles (SUPERVISOR/EDITOR) и покрыта backend тестами.
+- Contractors role policy закреплена тестами на trim/null + mixed-case + lowercase header path для lookups.
 - Runtime backend smoke всё ещё ограничен отсутствием docker/postgres.
 Next:
 - Сверить новую role-matrix policy contractors с legacy evidence и откорректировать granular права (особенно delete/block).
